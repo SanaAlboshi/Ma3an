@@ -1,0 +1,35 @@
+<!-- agency/templates/agency/add_tour_guide.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add TourGuide</title>
+</head>
+<body>
+    <h1>Add New TourGuide</h1>
+
+    {% for message in messages %}
+        <p style="color: green;">{{ message }}</p>
+    {% endfor %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label>First Name</label><br>
+        <input type="text" name="first_name" required><br><br>
+
+        <label>Last Name</label><br>
+        <input type="text" name="last_name" required><br><br>
+
+        <label>Username</label><br>
+        <input type="text" name="username" required><br><br>
+
+        <label>Email</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>Password</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <button type="submit">Create TourGuide</button>
+    </form>
+</body>
+</html>

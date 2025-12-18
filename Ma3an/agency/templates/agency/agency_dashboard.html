@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma3an - Agency Dashboard</title>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div>
+        <h2>Ma3an</h2>
+        <p>Travel Agency</p>
+
+        <ul>
+            <li><button>Dashboard</button></li>
+            <!-- Recent Tours -->
+            <div>
+                <h3>Tours</h3>
+                <a href="{% url 'all_tours' %}"><button>View All →</button></a>
+            </div>
+            <li>
+                <a href="{% url 'all_tour_guides' %}">
+                    <button>TourGuides</button>
+                </a>
+            </li>
+            <li><button>Travelers</button></li>
+            <li><button>Reports</button></li>
+            <li><button>Notifications</button></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+        <!-- Top Header -->
+        <div>
+            <div>
+                <span>Agency Manager</span>
+            </div>
+        </div>
+
+        <!-- Quick Add Buttons -->
+        <div>
+            <h2>Organize Your Upcoming Trips</h2>
+            <button onclick="location.href='add_tour.html'">+ Add Tour</button>
+            <button onclick="location.href='add_tour_guide.html'">+ Add TourGuide</button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div>
+            <h2>Statistics</h2>
+            <ul>
+                <li><strong>Upcoming Tours:</strong> (num)</li>
+                <li><strong>Active Tours:</strong> (num)</li>
+                <li><strong>TourGuides:</strong> (num)</li>
+                <li><strong>Total Travelers:</strong> (num)</li>
+            </ul>
+        </div>
+
+        <!-- Monthly Sales Chart -->
+        <div>
+            <h2>Monthly Sales</h2>
+            <canvas id="salesChart" style="max-width: 600px;"></canvas>
+        </div>
+
+        <!-- Recent Tours -->
+        <div>
+            <h3>Tours</h3>
+            <a href="{% url 'all_tours' %}"><button>View All →</button></a>
+        </div>
+
+        <div>
+            <h3>Tour Guide Group</h3>
+            <button>View All →</button>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div>
+            <h3>Notifications</h3>
+            <button>View All →</button>
+        </div>
+    </div>
+</body>
+</html>
