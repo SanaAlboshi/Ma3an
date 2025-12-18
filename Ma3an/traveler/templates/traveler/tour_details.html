@@ -1,0 +1,8 @@
+{% if joined %}
+  <button disabled>Joined ✅</button>
+{% else %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Join & Pay</button>
+  </form>
+{% endif %}
