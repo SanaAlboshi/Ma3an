@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django_countries.fields import CountryField
+
 
 class User(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
@@ -38,13 +40,24 @@ class User(AbstractUser):
 
 
 class Traveler(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    passport_number = models.CharField(max_length=100)
+    class GenderChoices(models.TextChoices):
+        MALE = 'male'
+        FEMALE = 'female'
 
+    user = models.OneToOneField(User, on_delete = models.CASCADE, related_name = 'traveler_profile')
+    date_of_birth = models.DateField()
+    phone_number = models.CharField(max_length=20)
+    gender = models.CharField(
+        max_length=10,
+        choices = GenderChoices.choices
+    )
+    nationality = CountryField()
+    passport_number = models.CharField(max_length = 20, unique = True)
+    passport_expiry_date = models.DateField()
+    
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.user.first_name} {self.user.last_name}"
+
 
 class Agency(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -55,7 +68,11 @@ class Agency(models.Model):
     city = models.CharField(max_length=100)
     country = models.CharField(max_length=100)
     commercial_license = models.CharField(max_length=100)
-    status = models.CharField(max_length=20, choices=(("Pending","Pending"),("Approved","Approved")), default="Pending")
+    status = models.CharField(max_length=20, 
+                              choices=(
+                                  ("Pending","Pending"),
+                                  ("Approved","Approved")), 
+                                default="Pending")
 
     def __str__(self):
         return self.agency_name
@@ -64,13 +81,12 @@ class Agency(models.Model):
 class TourGuide(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name="tour_guides")
-
-    # full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=50, blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.full_name
+        return f"{self.user.first_name} {self.user.last_name}"
+
 
 
 class PrivacySettings(models.Model):
