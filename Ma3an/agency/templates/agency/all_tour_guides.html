@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All TourGuides</title>
+</head>
+<body>
+    <h1>All TourGuides</h1>
+
+    {% if tour_guides %}
+        <ul>
+            {% for tour_guide in tour_guides %}
+                <li>
+                    {{ tour_guide.user.first_name }} {{ tour_guide.user.last_name }} 
+                    - Username: {{ tour_guide.user.username }} 
+                    - Email: {{ tour_guide.user.email }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No TourGuides added yet.</p>
+    {% endif %}
+
+    <a href="{% url 'add_tour_guide' %}"><button>Add New TourGuide →</button></a>
+
+
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">&larr; Back to Dashboard</a>
+
+
+</body>
+</html>

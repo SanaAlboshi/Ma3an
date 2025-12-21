@@ -1,0 +1,34 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %} Sign up - Ma3an {% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+    <form class="user-form" action="{% url 'accounts:signup_agency_view' %}" method="post" enctype="multipart/form-data">
+        <h2>Sign Up</h2>
+
+        {% csrf_token %}
+
+        <input type="hidden" name="role" value="agency" />
+        <input type="text" name="agency_name" placeholder="Agency Name" required />
+
+        <input type="text" name="username" placeholder="Username" required />
+
+        <input type="text" name="license_number" placeholder="Commercial Registration Number" required />
+        <input type="email" name="email" placeholder="Official Email" required />
+        <input type="text" name="phone_number" placeholder="Phone Number" required />
+        <input type="text" name="address" placeholder="Full Address" required />
+        <input type="text" name="city" placeholder="City" required />
+        <input type="text" name="country" placeholder="Country" required />
+        <input type="text" name="commercial_license" placeholder="Commercial_License" required />
+
+        <input type="password" name="password" placeholder="Password" required />
+        <input type="text" name="confirm_password" placeholder="Confirm Password" required />
+
+        <button type="submit" class="submit-btn">Sign up</button>
+    </form>
+</div>
+
+{% endblock %}

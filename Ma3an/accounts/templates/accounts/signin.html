@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %} Sign In - Ma3an {% endblock %}
+
+{% block content %}
+
+
+<div class="row form-container">
+
+    <form class="user-form" action="{% url 'accounts:signin_view' %}" method="post">
+        <h2>Welcome Back!</h2>
+
+        {% csrf_token %}
+
+        <input type="text" placeholder="Username" name="username" required />
+        <input type="password" placeholder="Password" name="password" required />
+        <button type="submit" class="btn submit-btn">Login</button>
+
+    </form>
+
+</div>
+
+{% endblock %}

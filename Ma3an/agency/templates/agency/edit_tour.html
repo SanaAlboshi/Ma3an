@@ -1,0 +1,44 @@
+<h2>Edit Tour</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label>Name:</label>
+    <input type="text" name="tourName" value="{{ tour.name }}">
+    
+    <label>Description:</label>
+    <textarea name="description">{{ tour.description }}</textarea>
+    
+    <label>Country:</label>
+    <input type="text" name="country" value="{{ tour.country }}">
+    
+    <label>City:</label>
+    <input type="text" name="city" value="{{ tour.city }}">
+    
+    <label>Travelers:</label>
+    <input type="number" name="travelers" value="{{ tour.travelers }}">
+    
+    <label>Price:</label>
+    <input type="number" name="price" value="{{ tour.price }}">
+    
+    <label>Start Date:</label>
+    <input type="date" name="startDate" value="{{ tour.start_date }}">
+    
+    <label>End Date:</label>
+    <input type="date" name="endDate" value="{{ tour.end_date }}">
+    
+    <label>Tour Guide:</label>
+    <select name="tourGuide">
+        <option value="">Select guide</option>
+        {% for guide in guides %}
+            <option value="{{ guide.id }}" {% if tour.tour_guide == guide %}selected{% endif %}>
+                {{ guide.name }}
+            </option>
+        {% endfor %}
+    </select>
+    
+    <label>Image:</label>
+    <input type="file" name="tourImage">
+    
+    <button type="submit">Save Changes</button>
+</form>
+
