@@ -1,17 +1,30 @@
-.dashboard { display: flex; }
-.sidebar { width: 220px; background: #111; color: #fff; min-height: 100vh; }
-.sidebar a { color: #fff; display: block; padding: 12px; }
-.content { flex: 1; padding: 20px; }
+body { font-family: 'Inter', sans-serif; }
 
-.notification {
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  background: #f4f4f4;
+/* Parallax Wrapper */
+.parallax-section {
+    position: relative;
+    height: 600px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
 }
 
-.notification.unread {
-  background: #fff3cd;
-  border-left: 4px solid #f0ad4e;
-  font-weight: bold;
+.hero-bg {
+    background-image: url('/static/images/travel-bg.jpg'); /* Add your image here */
+}
+
+.section-padding { padding: 80px 0; }
+
+.card-tour {
+    border: none;
+    transition: transform 0.3s ease;
+}
+
+.card-tour:hover {
+    transform: translateY(-10px);
 }

@@ -1,11 +1,81 @@
-{% extends 'main/base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}Home{% endblock %}
-
 {% block content %}
+<header class="parallax-section hero-bg">
+    <div class="container text-start text-dark bg-white p-5 rounded shadow-lg" style="max-width: 600px; margin-left: 10%;">
+        <h1 class="display-4 fw-bold">Travel Together.<br>Stay Connected.<br>Stay Ma3an</h1>
+        <p class="lead">Ma3an brings everyone together on the journey. No missed updates, no confusion, just clear communication.</p>
+        <div class="mt-4">
+            <a href="#" class="btn btn-primary btn-lg me-2">Explore Tours &rarr;</a>
+            <a href="#" class="btn btn-outline-primary btn-lg">Register Your Agency</a>
+        </div>
+    </div>
+</header>
 
-    <h2>Welcome to Ma3an</h2>
+<section class="section-padding text-center container">
+    <small class="text-uppercase fw-bold text-primary">About</small>
+    <h2 class="fw-bold mb-4">What is Ma3an (مَعًا)?</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <p class="text-muted">Ma3an is a centralized platform designed to solve the most common challenges faced during group travel. From live tour information to location tracking.</p>
+        </div>
+    </div>
+</section>
 
+<section class="bg-light section-padding">
+    <div class="container text-center">
+        <h3 class="mb-5">Key Benefits</h3>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="p-3">
+                    <i class="bi bi-calendar-check fs-1 text-primary"></i>
+                    <p class="mt-3 fw-bold">Real-time schedule updates</p>
+                </div>
+            </div>
+            </div>
+    </div>
+</section>
 
+<section class="section-padding container">
+    <div class="text-center mb-5">
+        <small class="text-uppercase">Caption</small>
+        <h2 class="fw-bold">Tours</h2>
+    </div>
+    <div class="row g-4">
+        {% for i in "1234" %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-tour text-center">
+                <div class="card-body">
+                    <div class="bg-light py-5 mb-3 rounded">Icon Placeholder</div>
+                    <h5 class="fw-bold">Tour Name</h5>
+                    <p class="small text-muted">Destination • Duration<br>Start Date</p>
+                    <p class="small">Short description of the experience goes here.</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-5">
+        <button class="btn btn-primary px-5">View All Tours</button>
+    </div>
+</section>
+
+<section class="section-padding bg-white">
+    <div class="container" style="max-width: 600px;">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Get In Touch</h2>
+            <p class="text-muted">Rhoncus morbi et augue nec, in id ullamcorper at sit.</p>
+        </div>
+        <form>
+            <div class="row mb-3">
+                <div class="col"><input type="text" class="form-control" placeholder="First Name"></div>
+                <div class="col"><input type="text" class="form-control" placeholder="Last Name"></div>
+            </div>
+            <div class="mb-3"><input type="text" class="form-control" placeholder="Label Name"></div>
+            <div class="mb-3"><textarea class="form-control" rows="3" placeholder="Message"></textarea></div>
+            <button class="btn btn-primary w-100 py-2">Button Text</button>
+        </form>
+    </div>
+</section>
 {% endblock %}
