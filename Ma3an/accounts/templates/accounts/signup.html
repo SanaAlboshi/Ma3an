@@ -36,11 +36,13 @@
             <option value="female">Female</option>
         </select>
 
-        <select name="nationality" required>
-            {% for code, name in countries %}
-                <option value="{{ code }}">{{ name }}</option>
-            {% endfor %}
-        </select>
+    <label for="id_nationality">Nationality:</label>
+    <select name="nationality" id="id_nationality" required>
+        <option value="">Select a country</option>
+        {% for code, name in countries %}
+            <option value="{{ code }}">{{ name }}</option>
+        {% endfor %}
+    </select>
 
         <input type="text" name="passport_number" placeholder="Passport Number" required />
 

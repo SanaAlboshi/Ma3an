@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 from django.db import models
 from agency.models import GeofenceEvent
-from django_countries.fields import CountryField
 
 
 class User(AbstractUser):
@@ -11,48 +11,45 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email' 
 
     REQUIRED_FIELDS = ['username']
-
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='accounts_user_set',
-        blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        related_query_name='user',
-    )
-
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='accounts_user_permissions_set',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        related_query_name='user',
-    )
     
-    ROLE_CHOICES = (
-        ("traveler", "Traveler"),
-        ("agency", "Agency"),
-        ("supervisor", "Supervisor"),
-    )
+    groups = models.ManyToManyField( 
+            'auth.Group', 
+            related_name='accounts_user_set', 
+            blank=True, 
+            help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', 
+            related_query_name='user', ) 
+    
+    user_permissions = models.ManyToManyField( 
+                       'auth.Permission', 
+                       related_name='accounts_user_permissions_set', 
+                       blank=True, 
+                       help_text='Specific permissions for this user.', 
+                       related_query_name='user', )
+    
+    class RoleChoices(models.TextChoices):
+        TRAVELER = 'traveler', 'Traveler'
+        AGENCY = 'agency', 'Agency'
+        TOURGUIDE = 'tourGuide', 'Tour Guide'
 
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-
+    role = models.CharField(max_length=20, choices=RoleChoices)
+    
     class Meta:
         db_table = "CustomUser"
 
-
+class GenderChoices(models.TextChoices):
+    MALE = 'male', 'Male'
+    FEMALE = 'female', 'Female'
+        
+        
 class Traveler(models.Model):
-    class GenderChoices(models.TextChoices):
-        MALE = 'male'
-        FEMALE = 'female'
-
     user = models.OneToOneField(User, on_delete = models.CASCADE, related_name = 'traveler_profile')
-    date_of_birth = models.DateField()
-    phone_number = models.CharField(max_length=20)
+    date_of_birth = models.DateField(null=True, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True)
     gender = models.CharField(
         max_length=10,
         choices = GenderChoices.choices
     )
-    nationality = CountryField()
+    nationality = models.CharField(max_length=3)  
     passport_number = models.CharField(max_length = 20, unique = True)
     passport_expiry_date = models.DateField()
     
@@ -61,44 +58,54 @@ class Traveler(models.Model):
 
 
 class Agency(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    class ApprovalStatus(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        APPROVED = 'approved', 'Approved'
+        REJECTED = 'rejected', 'Rejected'
+        
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="agency_profile")
     agency_name = models.CharField(max_length=255)
-    license_number = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=50)
-    address = models.TextField()
     city = models.CharField(max_length=100)
-    country = models.CharField(max_length=100)
     commercial_license = models.CharField(max_length=100)
-    status = models.CharField(max_length=20, 
-                              choices=(
-                                  ("Pending","Pending"),
-                                  ("Approved","Approved")), 
-                                default="Pending")
+    approval_status = models.CharField(
+        max_length=20,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING
+    )
 
     def __str__(self):
         return self.agency_name
     
+    class Meta:
+        ordering = ['agency_name']
+
+    
+class Language(models.Model):
+    code = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
     
 class TourGuide(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name="tour_guides")
-    phone_number = models.CharField(max_length=50, blank=True)
+    gender = models.CharField(
+        max_length=10,
+        choices = GenderChoices.choices
+    )
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    languages = models.ManyToManyField(Language, related_name="tour_guides")
+    # languages = models.CharField(max_length=255)
+    nationality = models.CharField(max_length=3)
+    passport_number = models.CharField(max_length = 20, unique = True)
+    passport_expiry_date = models.DateField()
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
 
-
-
-class PrivacySettings(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="privacy_settings")
-    show_email = models.BooleanField(default=True, help_text="Allow others to see your email")
-    # show_bio = models.BooleanField(default=True, help_text="Allow others to see your bio")
-    # show_portfolio = models.BooleanField(default=True, help_text="Allow others to see your portfolio")
-
-    def str(self):
-        return f"Privacy Settings for {self.user.username}"
-    
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
