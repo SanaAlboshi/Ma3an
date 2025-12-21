@@ -10,4 +10,9 @@ urlpatterns = [
     path('subscriptions/', views.manage_subscriptions, name='manage_subscriptions'),
     path('users/', views.users_list, name='users_list'),
     path('security/', views.system_security, name='system_security'),
+    path('agencies/<int:agency_id>/', views.agency_detail, name='agency_detail'),
+    path('agencies/reject/<int:agency_id>/', views.reject_agency, name='reject_agency'),
 ]
+
+
+
