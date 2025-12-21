@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.db import models
+# from agency.models import GeofenceEven
 
 
 class User(AbstractUser):
@@ -115,7 +116,7 @@ class TourGuide(models.Model):
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
 
-    event = models.ForeignKey("agency.GeofenceEvent", on_delete=models.CASCADE, related_name="notifications")
+    # event = models.ForeignKey(GeofenceEvent, on_delete=models.CASCADE, related_name="notifications")
 
     message = models.TextField()
     is_read = models.BooleanField(default=False)
