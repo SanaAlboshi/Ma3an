@@ -1,0 +1,17 @@
+.dashboard { display: flex; }
+.sidebar { width: 220px; background: #111; color: #fff; min-height: 100vh; }
+.sidebar a { color: #fff; display: block; padding: 12px; }
+.content { flex: 1; padding: 20px; }
+
+.notification {
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background: #f4f4f4;
+}
+
+.notification.unread {
+  background: #fff3cd;
+  border-left: 4px solid #f0ad4e;
+  font-weight: bold;
+}

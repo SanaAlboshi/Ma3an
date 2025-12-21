@@ -49,5 +49,53 @@ class TourSchedule(models.Model):
     location_name = models.CharField(max_length=255)
     location_url = models.URLField(blank=True, null=True)
 
+    # REQUIRED for Geofence
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+
     def __str__(self):
         return f"{self.tour.name} - Day {self.day_number} - {self.activity_title}"
+
+
+class Geofence(models.Model):
+    schedule = models.OneToOneField(TourSchedule, on_delete=models.CASCADE, related_name="geofence")
+
+    radius_meters = models.PositiveIntegerField(
+        help_text="Allowed distance from activity location in meters"
+    )
+
+    is_active = models.BooleanField(default=True)
+    trigger_on_enter = models.BooleanField(default=False)
+    trigger_on_exit = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class GeofenceEvent(models.Model):
+    EVENT_CHOICES = [
+        ("enter", "Enter"),
+        ("exit", "Exit"),
+    ]
+
+    traveler = models.ForeignKey(
+        "accounts.Traveler",
+        on_delete=models.CASCADE,
+        related_name="geofence_events"
+    )
+
+    geofence = models.ForeignKey(
+        Geofence,
+        on_delete=models.CASCADE,
+        related_name="events"
+    )
+
+    event_type = models.CharField(max_length=10, choices=EVENT_CHOICES)
+
+    occurred_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-occurred_at"]
+        unique_together = ("traveler", "geofence", "event_type")
+
+    def __str__(self):
+        return f"{self.traveler} {self.event_type} {self.geofence}"

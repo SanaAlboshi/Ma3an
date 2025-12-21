@@ -1,19 +1,34 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.utils import timezone
+from accounts.models import Traveler
+from agency.models import Tour
 
-User = get_user_model()
+class TravelerLocation(models.Model):
+    traveler = models.ForeignKey(Traveler, on_delete=models.CASCADE, related_name="locations")
+    tour = models.ForeignKey(Tour, on_delete=models.CASCADE)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
 
-class Traveler(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="traveler")
-    phone = models.CharField(max_length=20, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    accuracy = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="GPS accuracy in meters"
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Is this the current location"
+    )
+
+    recorded_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.user.username
+        return f"{self.traveler} @ ({self.latitude}, {self.longitude})"
+    
 
-class TourJoin(models.Model):
+class TravelerPayment(models.Model):
     traveler = models.ForeignKey(Traveler, on_delete=models.CASCADE)
-    # tour = models.ForeignKey("tours.Tour", on_delete=models.CASCADE)
+    tour = models.ForeignKey("agency.Tour", on_delete=models.CASCADE)
 
     STATUS_CHOICES = [
         ("pending", "Pending"),
@@ -27,7 +42,7 @@ class TourJoin(models.Model):
 
 class Review(models.Model):
     traveler = models.ForeignKey(Traveler, on_delete=models.CASCADE)
-    # tour = models.ForeignKey("tours.Tour", on_delete=models.CASCADE)
+    tour = models.ForeignKey("agency.Tour", on_delete=models.CASCADE)
     rating = models.IntegerField()
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

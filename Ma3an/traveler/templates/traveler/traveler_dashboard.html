@@ -1,0 +1,31 @@
+<div class="dashboard">
+  <aside class="sidebar">
+    <ul>
+      <li><a href="{% url 'traveler:traveler_dashboard_view' %}">Dashboard</a></li>
+      <li><a href="{% url 'traveler:tours_view' %}">All Tours</a></li>
+      <li><a href="#">My Tours</a></li>
+      <li><a href="#">Profile</a></li>
+    </ul>
+  </aside>
+
+  <main class="content">
+    {% block content %}
+    <section class="notifications">
+      <h3>Notifications</h3>
+    
+      {% for n in notifications %}
+        <div class="notification {% if not n.is_read %}unread{% endif %}">
+          <p>{{ n.message }}</p>
+          <small>{{ n.created_at|date:"Y-m-d H:i" }}</small>
+        </div>
+      <a href="{% url 'accounts:mark_notification_read' n.id %}">
+        Mark as read
+      </a>
+      {% empty %}
+        <p>No notifications</p>
+      {% endfor %} 
+    </section>
+    
+    {% endblock %}
+  </main>
+</div>
