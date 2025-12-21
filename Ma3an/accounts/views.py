@@ -18,52 +18,110 @@ User = settings.AUTH_USER_MODEL
 
 # Create your views here.
 
-def signup_view(request):
+# def signup_view(request):
+#     countries = [(c.alpha_2, c.name) for c in pycountry.countries]
+
+#     if request.method == "POST":
+#         role = request.POST.get("role")
+
+#         user_form = UserForm(request.POST)  # إنشاء الفورم للـ POST
+#         if user_form.is_valid():
+#             user = user_form.save(commit=False)
+#             user.set_password(user_form.cleaned_data["password"])
+#             user.role = role
+#             user.save()
+
+#             if role == "traveler":
+#                 traveler_form = TravelerForm(request.POST)
+#                 if traveler_form.is_valid():
+#                     traveler = traveler_form.save(commit=False)
+#                     traveler.user = user
+#                     traveler.save()
+#                 else:
+#                     messages.error(request, traveler_form.errors)
+#                     return render(request, "accounts/signup.html", {"countries": countries, "user_form": user_form})
+
+#             elif role == "agency":
+#                 agency_form = AgencyForm(request.POST)
+#                 if agency_form.is_valid():
+#                     agency = agency_form.save(commit=False)
+#                     agency.user = user
+#                     agency.approval_status = "pending"
+#                     agency.save()
+#                 else:
+#                     messages.error(request, agency_form.errors)
+#                     return render(request, "accounts/signup.html", {"countries": countries, "user_form": user_form})
+
+#             messages.success(request, "Account created successfully")
+#             return redirect("accounts:signin_view")
+#         else:
+#             messages.error(request, user_form.errors)
+
+#     else:
+#         # إنشاء الفورم للـ GET حتى لا يكون undefined
+#         user_form = UserForm()
+
+#     return render(request, "accounts/signup.html", {"countries": countries, "user_form": user_form})
+
+
+
+def signup_traveler_view(request):
     countries = [(c.alpha_2, c.name) for c in pycountry.countries]
 
     if request.method == "POST":
-        role = request.POST.get("role")
+        user_form = UserForm(request.POST)
+        traveler_form = TravelerForm(request.POST)
 
-        user_form = UserForm(request.POST)  # إنشاء الفورم للـ POST
-        if user_form.is_valid():
+        if user_form.is_valid() and traveler_form.is_valid():
             user = user_form.save(commit=False)
             user.set_password(user_form.cleaned_data["password"])
-            user.role = role
+            user.role = "traveler"
             user.save()
 
-            if role == "traveler":
-                traveler_form = TravelerForm(request.POST)
-                if traveler_form.is_valid():
-                    traveler = traveler_form.save(commit=False)
-                    traveler.user = user
-                    traveler.save()
-                else:
-                    messages.error(request, traveler_form.errors)
-                    return render(request, "accounts/signup.html", {"countries": countries, "user_form": user_form})
+            traveler = traveler_form.save(commit=False)
+            traveler.user = user
+            traveler.save()
 
-            elif role == "agency":
-                agency_form = AgencyForm(request.POST)
-                if agency_form.is_valid():
-                    agency = agency_form.save(commit=False)
-                    agency.user = user
-                    agency.approval_status = "pending"
-                    agency.save()
-                else:
-                    messages.error(request, agency_form.errors)
-                    return render(request, "accounts/signup.html", {"countries": countries, "user_form": user_form})
-
-            messages.success(request, "Account created successfully")
+            messages.success(request, "Traveler account created successfully.")
             return redirect("accounts:signin_view")
-        else:
-            messages.error(request, user_form.errors)
-
     else:
-        # إنشاء الفورم للـ GET حتى لا يكون undefined
         user_form = UserForm()
+        traveler_form = TravelerForm()
 
-    return render(request, "accounts/signup.html", {"countries": countries, "user_form": user_form})
+    return render(request, "accounts/signup_traveler.html", {
+        "user_form": user_form,
+        "traveler_form": traveler_form,
+        "countries": countries,
+    })
 
 
+
+def signup_agency_view(request):
+    if request.method == "POST":
+        user_form = UserForm(request.POST)
+        agency_form = AgencyForm(request.POST)
+
+        if user_form.is_valid() and agency_form.is_valid():
+            user = user_form.save(commit=False)
+            user.set_password(user_form.cleaned_data["password"])
+            user.role = "agency"
+            user.save()
+
+            agency = agency_form.save(commit=False)
+            agency.user = user
+            agency.approval_status = "pending"
+            agency.save()
+
+            messages.success(request, "Agency account created successfully.")
+            return redirect("accounts:signin_view")
+    else:
+        user_form = UserForm()
+        agency_form = AgencyForm()
+
+    return render(request, "accounts/agency_signup.html", {
+        "user_form": user_form,
+        "agency_form": agency_form,
+    })
 
 
 # def tourguide_profile_view(request):

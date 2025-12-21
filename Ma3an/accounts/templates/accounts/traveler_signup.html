@@ -5,7 +5,45 @@
 
 {% block content %}
 
-<div class="form-container">
+
+
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Sign Up - Traveler</h2>
+    <hr>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <h4>User Information</h4>
+        {{ user_form.as_p }}
+
+        <h4>Traveler Information</h4>
+        {{ traveler_form.as_p }}
+
+        <button type="submit" class="btn btn-primary mt-3">Sign Up</button>
+    </form>
+
+    {% if user_form.errors %}
+        <div class="alert alert-danger mt-3">
+            {{ user_form.errors }}
+        </div>
+    {% endif %}
+    {% if traveler_form.errors %}
+        <div class="alert alert-danger mt-3">
+            {{ traveler_form.errors }}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+
+
+<!-- <div class="form-container">
     <form class="user-form" action="{% url 'accounts:signup_traveler_view' %}" method="post" enctype="multipart/form-data">
         <h2>Sign Up</h2>
 
@@ -19,6 +57,6 @@
 
         <button type="submit" class="submit-btn">Sign up</button>
     </form>
-</div>
+</div> -->
 
 {% endblock %}

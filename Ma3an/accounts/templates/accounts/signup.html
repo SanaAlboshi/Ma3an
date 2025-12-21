@@ -67,14 +67,27 @@
     <button type="submit">Sign Up</button>
 </form>
 
-<script>
+<!-- <script>
 function toggleFields() {
     const role = document.querySelector('input[name="role"]:checked').value;
     document.getElementById("traveler-fields").style.display = role === "traveler" ? "block" : "none";
     document.getElementById("agency-fields").style.display = role === "agency" ? "block" : "none";
 }
+</script> -->
+
+<script>
+    function toggleFields() {
+    const checkedRole = document.querySelector('input[name="role"]:checked');
+    if (!checkedRole) return;
+    const role = checkedRole.value;
+    document.getElementById("traveler-fields").style.display = role === "traveler" ? "block" : "none";
+    document.getElementById("agency-fields").style.display = role === "agency" ? "block" : "none";
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    toggleFields(); // يعرض الحقول الصحيحة إذا كان أي role محدد
+});
+
 </script>
-
-
 
 {% endblock %}

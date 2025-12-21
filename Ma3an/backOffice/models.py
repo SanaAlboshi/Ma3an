@@ -25,25 +25,25 @@ class Subscription(models.Model):
         return self.subscriptionType
     
 
-class TravelAgency(models.Model):
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
-    agencyName = models.CharField(max_length=255)
-    licenseNumber = models.CharField(max_length=100)
-    country = models.CharField(max_length=100)
-    city = models.CharField(max_length=100)
-    address = models.TextField()
-    approved = models.BooleanField(default=False)
-    subscription = models.ForeignKey(
-        Subscription,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-    rejected = models.BooleanField(default=False)
-    rejectionReason = models.TextField(blank=True)
+# class TravelAgency(models.Model):
+#     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
+#     agencyName = models.CharField(max_length=255)
+#     licenseNumber = models.CharField(max_length=100)
+#     country = models.CharField(max_length=100)
+#     city = models.CharField(max_length=100)
+#     address = models.TextField()
+#     approved = models.BooleanField(default=False)
+#     subscription = models.ForeignKey(
+#         Subscription,
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True
+#     )
+#     rejected = models.BooleanField(default=False)
+#     rejectionReason = models.TextField(blank=True)
 
-    def __str__(self):
-        return self.agencyName
+#     def __str__(self):
+#         return self.agencyName
     
 
 class Notification(models.Model):
