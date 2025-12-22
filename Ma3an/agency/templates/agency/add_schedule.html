@@ -2,6 +2,9 @@
 {% load static %}
 
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -9,24 +12,23 @@
     <div class="mb-4">
         <div class="d-flex justify-content-between align-items-center text-center">
 
-            <div class="step completed">
-                <div class="circle">1</div>
-                <small>Tour Info</small>
-            </div>
+            <div class="step {% if current_step > 1 %}completed{% endif %} {% if current_step == 1 %}active{% endif %}">
+    <div class="circle">1</div>
+    <small>Tour Info</small>
+</div>
+<div class="line {% if current_step > 1 %}completed{% endif %}"></div>
 
-            <div class="line completed"></div>
+<div class="step {% if current_step > 2 %}completed{% endif %} {% if current_step == 2 %}active{% endif %}">
+    <div class="circle">2</div>
+    <small>Schedule</small>
+</div>
+<div class="line {% if current_step > 2 %}completed{% endif %}"></div>
 
-            <div class="step active">
-                <div class="circle">2</div>
-                <small>Schedule</small>
-            </div>
+<div class="step {% if current_step == 3 %}active{% endif %}">
+    <div class="circle">3</div>
+    <small>Confirm</small>
+</div>
 
-            <div class="line"></div>
-
-            <div class="step">
-                <div class="circle">3</div>
-                <small>Confirm</small>
-            </div>
         </div>
     </div>
     

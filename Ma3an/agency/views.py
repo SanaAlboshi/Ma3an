@@ -2,23 +2,20 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Tour, TourSchedule
 from datetime import datetime
-
-
-
 # -------------------------
 # Agency Views
 # -------------------------
 def dashboard_view(request):
     return render(request, 'agency/agency_dashboard.html')
 
-
 def subscription_view(request):
     return render(request, 'agency/agency_subscription.html')
-
 
 def agency_payment_view(request):
     return render(request, 'agency/agency_payment.html')
 
+def agency_profile(request):
+    return render(request, 'agency/agency_profile.html')
 
 # -------------------------
 # Tour Views

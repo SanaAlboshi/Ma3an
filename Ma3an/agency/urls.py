@@ -14,4 +14,7 @@ urlpatterns = [
     # Payment
     path('subscription/payment/', views.agency_payment_view, name='agency_payment'),
     path('tour/<int:tour_id>/add-schedule/', views.add_schedule_view, name='add_schedule'),
+    path('profile/', views.agency_profile, name='agency_profile'),
+
+
 ]
