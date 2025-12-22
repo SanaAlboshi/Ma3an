@@ -1,15 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tour Detail - {{ tour.name }}</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% extends 'main/base.html' %}
 {% load static %}
-</head>
-<body class="bg-light">
 
-<div class="container my-5">
+
+
+{% block content %}
+<div class="container mt-4 bg-light">
+
+    <!-- Multi Step Header -->
+    <div class="mb-4 d-flex justify-content-between align-items-center text-center">
+        <!-- Step 1 -->
+        <div class="step completed">
+            <div class="circle">1</div>
+            <small>Add Tour</small>
+        </div>
+        <div class="line completed"></div>
+
+        <!-- Step 2 -->
+        <div class="step completed">
+            <div class="circle">2</div>
+            <small>Schedule</small>
+        </div>
+        <div class="line completed"></div>
+
+        <!-- Step 3 -->
+        <div class="step active">
+            <div class="circle">3</div>
+            <small>Confirm</small>
+        </div>
+    </div>
 
     <div class="card mb-4 p-4">
         <h2>{{ tour.name }}</h2>
@@ -17,8 +35,6 @@
         <p><strong>Country:</strong> {{ tour.country }} | <strong>City:</strong> {{ tour.city }}</p>
         <p><strong>Travelers:</strong> {{ tour.travelers }} | <strong>Price:</strong> {{ tour.price }} SAR</p>
         <p><strong>Start Date:</strong> {{ tour.start_date }} | <strong>End Date:</strong> {{ tour.end_date }}</p>
-        <p><strong>TourGuide:</strong> {{ tour.tour_guide.user.username }}</p>
-
         {% if tour.image %}
             <img src="{{ tour.image.url }}" class="img-fluid rounded" alt="Tour Image">
         {% else %}
@@ -45,5 +61,4 @@
     </div>
 
 </div>
-</body>
-</html>
+{% endblock %}
