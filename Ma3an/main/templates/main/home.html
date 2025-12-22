@@ -1,81 +1,251 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'main/base.html' %}
+
+{% block title %}Ma3an - Travel Together, Stay Connected{% endblock %}
 
 {% block content %}
-<header class="parallax-section hero-bg">
-    <div class="container text-start text-dark bg-white p-5 rounded shadow-lg" style="max-width: 600px; margin-left: 10%;">
-        <h1 class="display-4 fw-bold">Travel Together.<br>Stay Connected.<br>Stay Ma3an</h1>
-        <p class="lead">Ma3an brings everyone together on the journey. No missed updates, no confusion, just clear communication.</p>
-        <div class="mt-4">
-            <a href="#" class="btn btn-primary btn-lg me-2">Explore Tours &rarr;</a>
-            <a href="#" class="btn btn-outline-primary btn-lg">Register Your Agency</a>
-        </div>
-    </div>
-</header>
-
-<section class="section-padding text-center container">
-    <small class="text-uppercase fw-bold text-primary">About</small>
-    <h2 class="fw-bold mb-4">What is Ma3an (مَعًا)?</h2>
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <p class="text-muted">Ma3an is a centralized platform designed to solve the most common challenges faced during group travel. From live tour information to location tracking.</p>
-        </div>
-    </div>
-</section>
-
-<section class="bg-light section-padding">
-    <div class="container text-center">
-        <h3 class="mb-5">Key Benefits</h3>
-        <div class="row">
-            <div class="col-md-3">
-                <div class="p-3">
-                    <i class="bi bi-calendar-check fs-1 text-primary"></i>
-                    <p class="mt-3 fw-bold">Real-time schedule updates</p>
-                </div>
-            </div>
-            </div>
-    </div>
-</section>
-
-<section class="section-padding container">
-    <div class="text-center mb-5">
-        <small class="text-uppercase">Caption</small>
-        <h2 class="fw-bold">Tours</h2>
-    </div>
-    <div class="row g-4">
-        {% for i in "1234" %}
-        <div class="col-md-6 col-lg-3">
-            <div class="card card-tour text-center">
-                <div class="card-body">
-                    <div class="bg-light py-5 mb-3 rounded">Icon Placeholder</div>
-                    <h5 class="fw-bold">Tour Name</h5>
-                    <p class="small text-muted">Destination • Duration<br>Start Date</p>
-                    <p class="small">Short description of the experience goes here.</p>
+<!-- Hero Section with Parallax -->
+<section class="parallax" style="background-image: url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200'); min-height: 100vh; display: flex; align-items: center;">
+    <div class="container parallax-content">
+        <div class="row justify-content-center text-center text-white">
+            <div class="col-lg-10" data-aos="fade-up">
+                <h1 class="display-3 fw-bold mb-4">Travel Together. Stay Together. Stay Ma3an.</h1>
+                <p class="lead fs-4 mb-5">The ultimate platform for group travel coordination. Real-time updates, instant communication, and seamless management for tour agencies and travelers.</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="#tours" class="btn btn-primary-custom btn-lg px-5">Explore Tours</a>
+                    <a href="#" class="btn btn-secondary-custom btn-lg px-5">Register Your Agency</a>
                 </div>
             </div>
         </div>
-        {% endfor %}
-    </div>
-    <div class="text-center mt-5">
-        <button class="btn btn-primary px-5">View All Tours</button>
     </div>
 </section>
 
-<section class="section-padding bg-white">
-    <div class="container" style="max-width: 600px;">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold">Get In Touch</h2>
-            <p class="text-muted">Rhoncus morbi et augue nec, in id ullamcorper at sit.</p>
-        </div>
-        <form>
-            <div class="row mb-3">
-                <div class="col"><input type="text" class="form-control" placeholder="First Name"></div>
-                <div class="col"><input type="text" class="form-control" placeholder="Last Name"></div>
+<!-- About Section -->
+<section id="about" class="bg-light">
+    <div class="container">
+        <h2 class="section-title text-center" data-aos="fade-up">What is Ma3an (معًا)?</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-delay="100">
+                <p class="lead mb-4">Ma3an is your comprehensive travel coordination platform, bringing tour agencies, supervisors, and travelers together in one unified ecosystem.</p>
+                <p class="text-muted fs-5 mb-5">We understand the challenges of group travel - from keeping everyone informed to managing complex itineraries. That's why we've built a platform that makes coordination effortless.</p>
             </div>
-            <div class="mb-3"><input type="text" class="form-control" placeholder="Label Name"></div>
-            <div class="mb-3"><textarea class="form-control" rows="3" placeholder="Message"></textarea></div>
-            <button class="btn btn-primary w-100 py-2">Button Text</button>
-        </form>
+        </div>
+        
+        <div class="row g-4 mt-3">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-center p-4 h-100 benefit-card">
+                    <i class="bi bi-lightning-charge-fill text-warning fs-1 mb-3"></i>
+                    <h5 class="fw-bold mb-2">Real-time Updates</h5>
+                    <p class="text-muted">Instant notifications keep everyone informed about schedule changes and important announcements</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="text-center p-4 h-100 benefit-card">
+                    <i class="bi bi-chat-dots-fill text-primary fs-1 mb-3"></i>
+                    <h5 class="fw-bold mb-2">Instant Communication</h5>
+                    <p class="text-muted">Stay connected with your group through integrated messaging and announcements</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="text-center p-4 h-100 benefit-card">
+                    <i class="bi bi-calendar-check-fill text-success fs-1 mb-3"></i>
+                    <h5 class="fw-bold mb-2">Better Coordination</h5>
+                    <p class="text-muted">Seamlessly manage schedules, itineraries, and activities all in one place</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="500">
+                <div class="text-center p-4 h-100 benefit-card">
+                    <i class="bi bi-gear-fill text-danger fs-1 mb-3"></i>
+                    <h5 class="fw-bold mb-2">Unified Platform</h5>
+                    <p class="text-muted">All-in-one solution that brings agencies, supervisors, and travelers together</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section id="benefits">
+    <div class="container">
+        <h2 class="section-title text-center" data-aos="fade-up">Why Choose Ma3an?</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3" data-aos="zoom-in" data-aos-delay="100">
+                <div class="benefit-box text-center p-4">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-globe"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Global Reach</h5>
+                    <p class="text-muted">Connect with travelers and agencies worldwide. Expand your network and reach international destinations with ease.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="zoom-in" data-aos-delay="200">
+                <div class="benefit-box text-center p-4">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Secure & Safe</h5>
+                    <p class="text-muted">Your data is protected with enterprise-grade security. Travel with confidence knowing your information is safe.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="zoom-in" data-aos-delay="300">
+                <div class="benefit-box text-center p-4">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-phone"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Mobile Ready</h5>
+                    <p class="text-muted">Access anywhere, anytime from any device. Stay connected on the go with our mobile-optimized platform.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="zoom-in" data-aos-delay="400">
+                <div class="benefit-box text-center p-4">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-heart"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">User Friendly</h5>
+                    <p class="text-muted">Intuitive interface designed for everyone. No technical expertise required to get started.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Available Tours Section with Parallax -->
+<section id="tours" class="parallax" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200'); padding: 100px 0;">
+    <div class="container parallax-content">
+        <h2 class="section-title text-center text-white" data-aos="fade-up">Available Tours</h2>
+        <div class="row g-4">
+            {% for tour in tours %}
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
+                <div class="card tour-card shadow-lg">
+                    <div class="tour-image-wrapper">
+                        {% if tour.image %}
+                            <img src="{{ tour.image.url }}" class="card-img-top" alt="{{ tour.name }}">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400" class="card-img-top" alt="{{ tour.name }}">
+                        {% endif %}
+                        <div class="tour-duration-badge">
+                            <i class="bi bi-calendar3"></i> {{ tour.days }} Day{{ tour.days|pluralize }}
+                        </div>
+                        <div class="tour-capacity-badge">
+                            <i class="bi bi-people-fill"></i> {{ tour.travelers }} Travelers
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-3">{{ tour.name }}</h5>
+                        <div class="tour-info mb-3">
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-geo-alt-fill text-danger"></i> {{ tour.city }}, {{ tour.country }}
+                            </p>
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-calendar-check text-success"></i> {{ tour.start_date|date:"M d, Y" }}
+                            </p>
+                        </div>
+                        <div class="tour-footer d-flex justify-content-between align-items-center mt-4">
+                            <div class="tour-price">
+                                <small class="text-muted d-block">Price per person</small>
+                                <h4 class="text-primary-custom fw-bold mb-0">${{ tour.price|floatformat:0 }}</h4>
+                            </div>
+                            <a href="#" class="btn btn-primary-custom">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- For Tour Agencies Section -->
+<section id="agencies" style="background: linear-gradient(135deg, var(--primary-color), var(--dark-color)); color: white;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center" data-aos="fade-up">
+                <h2 class="section-title text-white mb-4">Are You a Tour Agency?</h2>
+                <p class="lead mb-5">Join Ma3an and transform the way you manage group tours. Our comprehensive platform gives you all the tools you need to deliver exceptional travel experiences.</p>
+                
+                <div class="row g-4 text-start mb-5">
+                    <div class="col-md-6" data-aos="fade-right" data-aos-delay="100">
+                        <div class="d-flex">
+                            <i class="bi bi-check-circle-fill fs-3 me-3 flex-shrink-0"></i>
+                            <div>
+                                <h5 class="mb-2">Manage Tours Effortlessly</h5>
+                                <p class="text-white-50">Create, edit, and oversee multiple tours from a single dashboard</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" data-aos="fade-left" data-aos-delay="200">
+                        <div class="d-flex">
+                            <i class="bi bi-check-circle-fill fs-3 me-3 flex-shrink-0"></i>
+                            <div>
+                                <h5 class="mb-2">Assign Supervisors</h5>
+                                <p class="text-white-50">Delegate responsibilities and track supervisor performance in real-time</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" data-aos="fade-right" data-aos-delay="300">
+                        <div class="d-flex">
+                            <i class="bi bi-check-circle-fill fs-3 me-3 flex-shrink-0"></i>
+                            <div>
+                                <h5 class="mb-2">Upload Schedules</h5>
+                                <p class="text-white-50">Share detailed itineraries and keep everyone on the same page</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" data-aos="fade-left" data-aos-delay="400">
+                        <div class="d-flex">
+                            <i class="bi bi-check-circle-fill fs-3 me-3 flex-shrink-0"></i>
+                            <div>
+                                <h5 class="mb-2">Send Announcements</h5>
+                                <p class="text-white-50">Broadcast important updates instantly to all travelers</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="#" class="btn btn-lg px-5" style="background-color: white; color: var(--primary-color); font-weight: 600;" data-aos="zoom-in">
+                    Register Your Tour Agency
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Us Section -->
+<section id="contact" class="bg-light">
+    <div class="container">
+        <h2 class="section-title text-center" data-aos="fade-up">Contact Us</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <form method="post" action="#">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="name" class="form-label fw-bold">Full Name</label>
+                                <input type="text" class="form-control form-control-lg" id="name" name="name" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="email" class="form-label fw-bold">Email</label>
+                                <input type="email" class="form-control form-control-lg" id="email" name="email" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="message" class="form-label fw-bold">Message</label>
+                                <textarea class="form-control form-control-lg" id="message" name="message" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom btn-lg w-100">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 {% endblock %}

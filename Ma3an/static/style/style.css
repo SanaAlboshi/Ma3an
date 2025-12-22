@@ -1,30 +1,546 @@
-body { font-family: 'Inter', sans-serif; }
+/* Ma3an Platform - Main Stylesheet */
 
-/* Parallax Wrapper */
-.parallax-section {
-    position: relative;
-    height: 600px;
+/* ===== CSS Variables ===== */
+:root {
+    --primary-color: #2E7D32;
+    --secondary-color: #FF6F00;
+    --dark-color: #1B5E20;
+    --light-bg: #F1F8E9;
+}
+
+/* ===== Base Styles ===== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ===== Navbar Styles ===== */
+.navbar {
+    transition: all 0.3s ease;
+    padding: 1rem 0;
+}
+
+.navbar.scrolled {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color) !important;
+}
+
+.nav-link {
+    margin: 0 0.5rem;
+    font-weight: 500;
+    color: #333 !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+/* ===== Button Styles ===== */
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--dark-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    color: white;
+}
+
+.btn-secondary-custom {
+    background-color: transparent;
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary-custom:hover {
+    background-color: var(--secondary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* ===== Parallax Sections ===== */
+.parallax {
     background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    position: relative;
+}
+
+.parallax::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.parallax-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== Section Styles ===== */
+section {
+    padding: 80px 0;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 3rem;
+    color: var(--dark-color);
+}
+
+/* ===== Card Styles ===== */
+.card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* ===== Benefit Cards ===== */
+.benefit-card {
+    background: white;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.benefit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.benefit-box {
+    background: white;
+    border-radius: 15px;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+}
+
+.benefit-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.benefit-box:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+/* ===== Feature Icons ===== */
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
     color: white;
 }
 
-.hero-bg {
-    background-image: url('/static/images/travel-bg.jpg'); /* Add your image here */
+/* ===== Footer Styles ===== */
+footer {
+    background-color: #212529;
+    color: white;
+    padding: 40px 0 20px;
 }
 
-.section-padding { padding: 80px 0; }
+footer a {
+    color: #adb5bd;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
 
-.card-tour {
-    border: none;
+footer a:hover {
+    color: var(--primary-color);
+}
+
+/* ===== Hero Section ===== */
+.hero-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+/* ===== About Section Icons ===== */
+.about-icon-box {
     transition: transform 0.3s ease;
 }
 
-.card-tour:hover {
-    transform: translateY(-10px);
+.about-icon-box:hover {
+    transform: scale(1.05);
+}
+
+/* ===== Tours Section ===== */
+.tour-card-wrapper {
+    margin-bottom: 2rem;
+}
+
+/* ===== Agencies Section ===== */
+.agencies-section {
+    background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+    color: white;
+}
+
+.agencies-feature-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.agencies-feature-box:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+}
+
+/* ===== Contact Section ===== */
+.contact-form-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.25);
+}
+
+/* ===== Utility Classes ===== */
+.bg-light-custom {
+    background-color: var(--light-bg);
+}
+
+.text-primary-custom {
+    color: var(--primary-color);
+}
+
+.text-secondary-custom {
+    color: var(--secondary-color);
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.5rem;
+    }
+    
+    .parallax {
+        background-attachment: scroll;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    section {
+        padding: 50px 0;
+    }
+    
+    .section-title {
+        font-size: 1.75rem;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-lg {
+        padding: 0.5rem 1.25rem;
+        font-size: 1rem;
+    }
+}
+
+/* ===== Animation Classes ===== */
+.fade-in {
+    animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.8s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.8s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ===== Loading Animation ===== */
+.spinner {
+    border: 3px solid rgba(46, 125, 50, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid var(--primary-color);
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-color);
+}
+
+/* ===== Alert Styles ===== */
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.alert-success {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: var(--dark-color);
+    border-left: 4px solid var(--primary-color);
+}
+
+/* ===== Badge Styles ===== */
+.badge-custom {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* ===== Shadow Effects ===== */
+.shadow-custom {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-hover {
+    transition: box-shadow 0.3s ease;
+}
+
+.shadow-hover:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+
+/* Tour Card Styles */
+.tour-card {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    height: 100%;
+    background: white;
+}
+
+.tour-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3) !important;
+}
+
+.tour-image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.tour-card .card-img-top {
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.tour-card:hover .card-img-top {
+    transform: scale(1.1);
+}
+
+.tour-duration-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px 15px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    backdrop-filter: blur(10px);
+}
+
+.tour-duration-badge i {
+    margin-right: 5px;
+}
+
+.tour-capacity-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 111, 0, 0.95);
+    padding: 8px 15px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    backdrop-filter: blur(10px);
+}
+
+.tour-capacity-badge i {
+    margin-right: 5px;
+}
+
+.tour-card .card-body {
+    padding: 1.5rem;
+}
+
+.tour-card .card-title {
+    color: #333;
+    font-size: 1.25rem;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+}
+
+.tour-info {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+}
+
+.tour-info p {
+    font-size: 0.95rem;
+}
+
+.tour-info i {
+    margin-right: 8px;
+}
+
+.tour-footer {
+    padding-top: 1rem;
+}
+
+.tour-price small {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tour-price h4 {
+    font-size: 1.75rem;
+    color: var(--primary-color);
+}
+
+.tour-card .btn-primary-custom {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tour-card .card-img-top {
+        height: 200px;
+    }
+    
+    .tour-duration-badge,
+    .tour-capacity-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+    
+    .tour-footer {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .tour-card .btn-primary-custom {
+        width: 100%;
+    }
 }

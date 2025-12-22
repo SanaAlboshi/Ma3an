@@ -1,5 +1,4 @@
 from django.http import HttpResponseForbidden
-from accounts.models import Profile
 
 def admin_only(view_func):
     def wrapper(request, *args, **kwargs):
