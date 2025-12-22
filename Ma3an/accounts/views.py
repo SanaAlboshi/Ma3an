@@ -22,31 +22,61 @@ User = get_user_model()
 # Create your views here.
 
 def signup_traveler_view(request):
-    if not request.user.is_authenticated or request.user.role != "agency":
-        messages.error(request, "Only agencies can create tour guides.")
-        return redirect("accounts:signin_view")
+    
+    if request.method == 'POST':
+        form = TravelerForm(request.POST)
+        if form.is_valid():
+            # إنشاء المستخدم أولًا
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                password=form.cleaned_data['password'],
+                first_name=form.cleaned_data['first_name'],
+                last_name=form.cleaned_data['last_name'],
+                email=form.cleaned_data['email']
+            )
+            # إنشاء ملف المسافر المرتبط بالمستخدم
+            Traveler.objects.create(
+                user=user,
+                date_of_birth=form.cleaned_data['date_of_birth'],
+                phone_number=form.cleaned_data['phone_number'],
+                gender=form.cleaned_data['gender'],
+                nationality=form.cleaned_data['nationality'],
+                passport_number=form.cleaned_data['passport_number'],
+                passport_expiry_date=form.cleaned_data['passport_expiry_date']
+            )
+            messages.success(request, "Account created successfully.")
+            return redirect('signin_view')
+    else:
+        form = TravelerForm()
+    return render(request, 'accounts/traveler_signup.html', {'form': form})
 
-    if request.method == "POST":
-        email = request.POST["email"]
-        password = request.POST["password"]
 
-        user = User.objects.create_user(
-            email=email,
-            username=email,
-            password=password,
-            role="tourGuide"
-        )
 
-        TourGuide.objects.create(
-            user=user,
-            agency=request.user.agency_profile,
-            is_active=True
-        )
+    # if not request.user.is_authenticated or request.user.role != "agency":
+    #     messages.error(request, "Only agencies can create tour guides.")
+    #     return redirect("accounts:signin_view")
 
-        messages.success(request, "Tour guide created successfully.")
-        return redirect("agency:dashboard")
+    # if request.method == "POST":
+    #     email = request.POST["email"]
+    #     password = request.POST["password"]
 
-    return render(request, "accounts/create_tourguide.html")
+    #     user = User.objects.create_user(
+    #         email=email,
+    #         username=email,
+    #         password=password,
+    #         role="tourGuide"
+    #     )
+
+    #     TourGuide.objects.create(
+    #         user=user,
+    #         agency=request.user.agency_profile,
+    #         is_active=True
+    #     )
+
+    #     messages.success(request, "Tour guide created successfully.")
+    #     return redirect("agency:dashboard")
+
+    # return render(request, "accounts/create_tourguide.html")
 
 
 

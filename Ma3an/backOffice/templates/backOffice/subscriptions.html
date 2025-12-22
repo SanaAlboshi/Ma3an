@@ -1,0 +1,39 @@
+{% extends 'backOffice/base.html' %}
+{% block content %}
+
+<h3 class="mb-4">Subscriptions</h3>
+
+<div class="card shadow">
+    <div class="card-body">
+        {% if subscriptions %}
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Tours limit</th>
+                            <th>Supervisors limit</th>
+                            <th>Travelers limit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in subscriptions %}
+                            <tr>
+                                <td>{{ s.subscriptionType }}</td>
+                                <td>{{ s.price }}</td>
+                                <td>{{ s.tours_limit|default:"-" }}</td>
+                                <td>{{ s.supervisors_limit|default:"-" }}</td>
+                                <td>{{ s.travelers_limit|default:"-" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No subscriptions found.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

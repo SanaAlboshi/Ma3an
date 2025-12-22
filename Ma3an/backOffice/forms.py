@@ -1,16 +1,22 @@
 from django import forms
-from .models import Agency, Subscription
+
+from accounts.models import Agency
+from agency.models import Subscription
+
 
 class AgencyApprovalForm(forms.ModelForm):
     class Meta:
         model = Agency
-        fields = ['approved']
+        fields = ["approval_status", "rejection_reason"]
 
 
 class SubscriptionForm(forms.ModelForm):
     class Meta:
         model = Subscription
-        fields = ['plan', 'active', 'expiry_date']
-        widgets = {
-            'expiry_date': forms.DateInput(attrs={'type': 'date'})
-        }
+        fields = [
+            "subscriptionType",
+            "price",
+            "tours_limit",
+            "supervisors_limit",
+            "travelers_limit",
+        ]

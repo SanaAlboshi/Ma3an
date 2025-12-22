@@ -17,7 +17,7 @@
                     name="q"
                     value="{{ q }}"
                     class="form-control"
-                    placeholder="Search by agency name, license, country, or city"
+                    placeholder="Search by agency name, license, city, phone, username, or email"
                 >
             </div>
             <div class="col-md-4 d-flex gap-2">
@@ -69,9 +69,9 @@
                 <thead>
                     <tr>
                         <th>Agency</th>
-                        <th>License</th>
-                        <th>Country</th>
+                        <th>Commercial License</th>
                         <th>City</th>
+                        <th>Phone</th>
                         <th>Owner</th>
                         <th>Status</th>
                         <th class="text-end">Action</th>
@@ -81,23 +81,25 @@
                     {% for agency in agencies %}
                         <tr>
                             <td>
-                                <strong>{{ agency.agencyName }}</strong>
-                                <div class="text-muted small">{{ agency.address }}</div>
+                                <strong>{{ agency.agency_name|default:"No name" }}</strong>
+                                <div class="text-muted small">
+                                    {{ agency.user.email|default:"" }}
+                                </div>
                             </td>
-                            <td>{{ agency.licenseNumber }}</td>
-                            <td>{{ agency.country }}</td>
-                            <td>{{ agency.city }}</td>
+                            <td>{{ agency.commercial_license|default:"-" }}</td>
+                            <td>{{ agency.city|default:"-" }}</td>
+                            <td>{{ agency.phone_number|default:"-" }}</td>
                             <td>
-                                {% if agency.profile and agency.profile.user %}
-                                    {{ agency.profile.user.username }}
+                                {% if agency.user %}
+                                    {{ agency.user.username }}
                                 {% else %}
                                     <span class="text-muted">No owner</span>
                                 {% endif %}
                             </td>
                             <td>
-                                {% if agency.approved %}
+                                {% if agency.approval_status == 'approved' %}
                                     <span class="badge bg-success">Approved</span>
-                                {% elif agency.rejected %}
+                                {% elif agency.approval_status == 'rejected' %}
                                     <span class="badge bg-danger">Rejected</span>
                                 {% else %}
                                     <span class="badge bg-warning text-dark">Pending</span>
@@ -108,7 +110,7 @@
                                     View
                                 </a>
 
-                                {% if not agency.approved and not agency.rejected %}
+                                {% if agency.approval_status == 'pending' %}
                                     <a href="{% url 'backOffice:approve_agency' agency.id %}" class="btn btn-sm btn-primary">
                                         Approve
                                     </a>
@@ -123,12 +125,12 @@
                                                 <form method="post" action="{% url 'backOffice:reject_agency' agency.id %}">
                                                     {% csrf_token %}
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title">Reject {{ agency.agencyName }}</h5>
+                                                        <h5 class="modal-title">Reject {{ agency.agency_name|default:"Agency" }}</h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
                                                         <label class="form-label">Rejection reason</label>
-                                                        <textarea name="rejectionReason" class="form-control" rows="4" placeholder="Write a reason"></textarea>
+                                                        <textarea name="rejection_reason" class="form-control" rows="4" placeholder="Write a reason"></textarea>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -139,9 +141,9 @@
                                         </div>
                                     </div>
 
-                                {% elif agency.approved %}
+                                {% elif agency.approval_status == 'approved' %}
                                     <button class="btn btn-sm btn-outline-secondary" disabled>Approved</button>
-                                {% elif agency.rejected %}
+                                {% elif agency.approval_status == 'rejected' %}
                                     <button class="btn btn-sm btn-outline-secondary" disabled>Rejected</button>
                                 {% endif %}
                             </td>

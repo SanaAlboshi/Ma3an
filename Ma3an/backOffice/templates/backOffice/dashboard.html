@@ -17,7 +17,7 @@
     <div class="col-md-3">
         <div class="card text-center shadow">
             <div class="card-body">
-                <h6>Active Agencies</h6>
+                <h6>Approved Agencies</h6>
                 <h2>{{ active_agencies }}</h2>
             </div>
         </div>
@@ -35,8 +35,8 @@
     <div class="col-md-3">
         <div class="card text-center shadow">
             <div class="card-body">
-                <h6>Active Subscriptions</h6>
-                <h2>{{ active_subscriptions }}</h2>
+                <h6>Subscriptions</h6>
+                <h2>{{ subscriptions_count }}</h2>
             </div>
         </div>
     </div>
@@ -50,7 +50,7 @@
             <ul class="list-group list-group-flush">
                 {% for notification in recent_notifications %}
                     <li class="list-group-item">
-                        <strong>{{ notification.title }}</strong>
+                        {{ notification.message }}
                         <br>
                         <small class="text-muted">
                             {{ notification.created_at|date:"M d, Y H:i" }}

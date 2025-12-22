@@ -144,6 +144,8 @@ MEDIA_ROOT= os.path.join(BASE_DIR,'media')
 
 
 # Authentication
-LOGIN_URL = '/accounts/login/'
+from django.urls import reverse_lazy
+LOGIN_URL = reverse_lazy("accounts:signin_view")
+
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'

@@ -1,0 +1,43 @@
+{% extends 'backOffice/base.html' %}
+{% block content %}
+
+<h3 class="mb-4">Users</h3>
+
+<div class="card shadow">
+    <div class="card-body">
+        {% if users %}
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Joined</th>
+                            <th>Staff</th>
+                            <th>Superuser</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                            <tr>
+                                <td>{{ u.username }}</td>
+                                <td>{{ u.email|default:"-" }}</td>
+                                <td>{{ u.date_joined|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if u.is_staff %}<span class="badge bg-info">Yes</span>{% else %}No{% endif %}
+                                </td>
+                                <td>
+                                    {% if u.is_superuser %}<span class="badge bg-dark">Yes</span>{% else %}No{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No users found.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

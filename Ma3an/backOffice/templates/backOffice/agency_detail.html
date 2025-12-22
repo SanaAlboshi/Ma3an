@@ -9,13 +9,14 @@
 
 <div class="card shadow">
     <div class="card-body">
-        <h4 class="mb-3">{{ agency.agencyName }}</h4>
+        <h4 class="mb-3">{{ agency.agency_name|default:"Agency" }}</h4>
 
         <div class="row g-3">
+
             <div class="col-md-6">
                 <div class="border rounded p-3">
-                    <div class="text-muted">License</div>
-                    <div class="fw-semibold">{{ agency.licenseNumber }}</div>
+                    <div class="text-muted">Commercial License</div>
+                    <div class="fw-semibold">{{ agency.commercial_license|default:"-" }}</div>
                 </div>
             </div>
 
@@ -23,8 +24,8 @@
                 <div class="border rounded p-3">
                     <div class="text-muted">Owner</div>
                     <div class="fw-semibold">
-                        {% if agency.profile and agency.profile.user %}
-                            {{ agency.profile.user.username }}
+                        {% if agency.user %}
+                            {{ agency.user.username }}{% if agency.user.email %} ({{ agency.user.email }}){% endif %}
                         {% else %}
                             Not available
                         {% endif %}
@@ -34,8 +35,8 @@
 
             <div class="col-md-6">
                 <div class="border rounded p-3">
-                    <div class="text-muted">Location</div>
-                    <div class="fw-semibold">{{ agency.country }}, {{ agency.city }}</div>
+                    <div class="text-muted">City</div>
+                    <div class="fw-semibold">{{ agency.city|default:"-" }}</div>
                 </div>
             </div>
 
@@ -43,9 +44,9 @@
                 <div class="border rounded p-3">
                     <div class="text-muted">Status</div>
                     <div class="fw-semibold">
-                        {% if agency.approved %}
+                        {% if agency.approval_status == 'approved' %}
                             Approved
-                        {% elif agency.rejected %}
+                        {% elif agency.approval_status == 'rejected' %}
                             Rejected
                         {% else %}
                             Pending
@@ -56,19 +57,20 @@
 
             <div class="col-12">
                 <div class="border rounded p-3">
-                    <div class="text-muted">Address</div>
-                    <div class="fw-semibold">{{ agency.address }}</div>
+                    <div class="text-muted">Phone</div>
+                    <div class="fw-semibold">{{ agency.phone_number|default:"-" }}</div>
                 </div>
             </div>
 
-            {% if agency.rejected and agency.rejectionReason %}
-            <div class="col-12">
-                <div class="border rounded p-3">
-                    <div class="text-muted">Rejection reason</div>
-                    <div class="fw-semibold">{{ agency.rejectionReason }}</div>
+            {% if agency.approval_status == 'rejected' and agency.rejection_reason %}
+                <div class="col-12">
+                    <div class="border rounded p-3">
+                        <div class="text-muted">Rejection reason</div>
+                        <div class="fw-semibold">{{ agency.rejection_reason }}</div>
+                    </div>
                 </div>
-            </div>
             {% endif %}
+
         </div>
     </div>
 </div>

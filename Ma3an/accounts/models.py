@@ -115,7 +115,7 @@ class TourGuide(models.Model):
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
 
-    # event = models.ForeignKey(GeofenceEvent, on_delete=models.CASCADE, related_name="notifications")
+    event = models.ForeignKey("agency.GeofenceEvent", on_delete=models.CASCADE, related_name="notifications")
 
     message = models.TextField()
     is_read = models.BooleanField(default=False)
