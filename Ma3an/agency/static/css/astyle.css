@@ -1,0 +1,109 @@
+/* ======= Multi Step Header ======= */
+.step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.circle {
+    width: 38px;
+    height: 38px;
+    line-height: 38px;
+    border-radius: 50%;
+    background: #dee2e6;
+    color: #6c757d;
+    margin: 0 auto 6px;
+    font-weight: bold;
+}
+
+.step.active .circle {
+    background: #198754;
+    color: #fff;
+}
+
+.step.completed .circle {
+    background: #198754;
+    color: #fff;
+}
+
+.line {
+    flex: 1;
+    height: 4px;
+    background: #dee2e6;
+    margin: 0 10px;
+}
+
+.line.completed {
+    background: #198754;
+}
+
+/* ======= General Styling ======= */
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+}
+
+.card {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* ======= Schedule Styling ======= */
+.day {
+    border:1px solid #ccc;
+    padding:15px;
+    margin-bottom:20px;
+    border-radius:6px;
+    background: #fff;
+}
+
+.activity {
+    border:1px dashed #aaa;
+    padding:10px;
+    margin-bottom:10px;
+    position:relative;
+    border-radius:6px;
+    background: #f8f9fa;
+}
+
+.remove-activity {
+    color:red;
+    cursor:pointer;
+    position:absolute;
+    top:5px;
+    right:10px;
+    font-size:14px;
+}
+
+/* ======= Buttons ======= */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
