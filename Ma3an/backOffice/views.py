@@ -94,7 +94,7 @@ def approve_agency(request, agency_id):
 
 @login_required
 @admin_only
-@require_POST
+# @require_POST
 def reject_agency(request, agency_id):
     agency = get_object_or_404(Agency, id=agency_id)
 
