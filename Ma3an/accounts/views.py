@@ -237,9 +237,9 @@ def create_tourguide_view(request : HttpRequest):
     # return redirect("agency_dashboard")
     
      # صلاحية: لازم يكون Agency
-    if request.user.role != "agency":
-        messages.error(request, "Only agencies can create tour guides.")
-        return redirect("accounts:signin_view")
+    # if request.user.role != "agency":
+    #     messages.error(request, "Only agencies can create tour guides.")
+    #     return redirect("accounts:signin_view")
 
     countries = [(c.alpha_2, c.name) for c in pycountry.countries]
     languages_list = Language.objects.all()
@@ -264,7 +264,7 @@ def create_tourguide_view(request : HttpRequest):
             request,
             "Tour guide created successfully. Login details sent by email."
         )
-        return redirect("agency_dashboard")
+        return redirect("agency:dashboard")
 
     return render(request, "accounts/create_tourguide.html", {
         "countries": countries,

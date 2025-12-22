@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "main/base.html" %}
 {% load static %}
 
 {% block content %}
@@ -6,7 +6,7 @@
     <h2>Create Tour Guide</h2>
     <hr>
 
-    <form method="post">
+    <form method="post" action="{% url 'accounts:create_tourguide_view' %}">
         {% csrf_token %}
 
         <div class="mb-3">
