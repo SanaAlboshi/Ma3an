@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest
 from django.contrib.auth import authenticate, login, logout
-from .forms import UserForm, TravelerForm, AgencyForm, TourGuideCreateForm
+from .forms import UserForm, TravelerForm, AgencyForm, TourGuideCreateForm, UserRegisterForm
 from .models import Traveler, Agency, TourGuide, Language, Notification
 from django.contrib import messages
 import pycountry
@@ -21,34 +21,84 @@ User = get_user_model()
 
 # Create your views here.
 
-def signup_traveler_view(request):
+# views.py
+def signup_role_view(request):
+    return render(request, "accounts/signup_role.html")
+
+
+
+
+
+
+def register_register_view(request):
     
+    if request.method == "POST":
+        try:
+            new_user = User.objects.create_user(
+                username = request.POST["username"],
+                password = request.POST["password"],
+                email = request.POST["email"],
+                first_name = request.POST["first_name"],
+                last_name = request.POST["last_name"],
+            )
+
+            new_user.save()
+
+            messages.success(request, "registered successfully", "alert-success")
+            return redirect("accounts:signin_view")
+        except Exception as e: 
+            print(e)
+    
+    return render(request, "accounts/traveler_signup.html")
+
+
+    # if request.method == 'POST':
+    #     form = UserRegisterForm(request.POST)
+    #     if form.is_valid():
+    #         form.save()
+    #         return redirect('login')  # أو أي صفحة تريد إعادة التوجيه لها
+    # else:
+    #     form = UserRegisterForm()
+    # return render(request, 'accounts/register.html', {'form': form})
+
+
+
+
+
+
+
+def signup_traveler_view(request):
+    # countries = [(country.name, country.name) for country in pycountry.countries]
+
     if request.method == 'POST':
-        form = TravelerForm(request.POST)
-        if form.is_valid():
-            # إنشاء المستخدم أولًا
-            user = User.objects.create_user(
-                username=form.cleaned_data['username'],
-                password=form.cleaned_data['password'],
-                first_name=form.cleaned_data['first_name'],
-                last_name=form.cleaned_data['last_name'],
-                email=form.cleaned_data['email']
-            )
-            # إنشاء ملف المسافر المرتبط بالمستخدم
-            Traveler.objects.create(
-                user=user,
-                date_of_birth=form.cleaned_data['date_of_birth'],
-                phone_number=form.cleaned_data['phone_number'],
-                gender=form.cleaned_data['gender'],
-                nationality=form.cleaned_data['nationality'],
-                passport_number=form.cleaned_data['passport_number'],
-                passport_expiry_date=form.cleaned_data['passport_expiry_date']
-            )
+        user_form = UserForm(request.POST)
+        traveler_form = TravelerForm(request.POST)
+
+        if user_form.is_valid() and traveler_form.is_valid():
+            user = user_form.save(commit=False)
+            user.set_password(user_form.cleaned_data['password'])
+            user.role = "traveler"
+            user.save()
+
+            traveler = traveler_form.save(commit=False)
+            traveler.user = user
+            traveler.save()
+
             messages.success(request, "Account created successfully.")
-            return redirect('signin_view')
+            return redirect('accounts:signin_view')
+        else:
+            print(user_form.errors)
+            print(traveler_form.errors)
     else:
-        form = TravelerForm()
-    return render(request, 'accounts/traveler_signup.html', {'form': form})
+        user_form = UserForm()
+        traveler_form = TravelerForm()
+
+    context = {
+        'user_form': user_form,
+        'traveler_form': traveler_form,
+        # 'countries': countries
+    }
+    return render(request, 'accounts/traveler_signup.html', context)
 
 
 

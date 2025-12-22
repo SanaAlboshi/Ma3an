@@ -2,32 +2,42 @@
 {% load static %}
 
 {% block content %}
-
-<div class="form-container">
-    <form class="user-form" action="{% url 'accounts:signup_traveler' %}" method="post" enctype="multipart/form-data">
-        <h2>Traveler Sign Up</h2>
-
-        {% csrf_token %}
-
-        <input type="email" placeholder="Email" name="email" required />
-        <input type="text" placeholder="Username" name="username" required />
-        <input type="text" placeholder="First Name" name="first_name" required />
-        <input type="text" placeholder="Last Name" name="last_name" required />
-        <input type="password" placeholder="Password" name="password" required />
-
-        <input type="date" placeholder="Date of Birth" name="date_of_birth" />
-        <input type="text" placeholder="Phone Number" name="phone_number" />
-        <select name="gender">
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-        </select>
-        <input type="text" placeholder="Nationality" name="nationality" />
-        <input type="text" placeholder="Passport Number" name="passport_number" />
-        <input type="date" placeholder="Passport Expiry Date" name="passport_expiry_date" />
-
-        <button type="submit" class="submit-btn">Sign up</button>
-    </form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Sign Up</h2>
+                    <form action="{% url 'accounts:signup_traveler' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <input type="email" class="form-control" placeholder="Email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="text" class="form-control" placeholder="Username" name="username" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="text" class="form-control" placeholder="First Name" name="first_name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="text" class="form-control" placeholder="Last Name" name="last_name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="password" class="form-control" placeholder="Password" name="password" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Sign Up</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}

@@ -6,8 +6,6 @@ from django.db import models
 
 class User(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
-    USERNAME_FIELD = 'email' 
-    REQUIRED_FIELDS = ['username']
     
     groups = models.ManyToManyField( 
             'auth.Group', 
@@ -36,6 +34,8 @@ class User(AbstractUser):
 class GenderChoices(models.TextChoices):
     MALE = 'male', 'Male'
     FEMALE = 'female', 'Female'
+
+# gender = forms.ChoiceField(choices=GENDER_CHOICES, required=False)
 
         
 class Traveler(models.Model):
