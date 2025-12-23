@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os 
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -135,9 +137,6 @@ MOYASAR_PUBLISHABLE_KEY = os.environ.get("MOYASAR_PUBLISHABLE_KEY")
 MOYASAR_SECRET_KEY = os.environ.get("MOYASAR_SECRET_KEY")
 MOYASAR_BASE_URL = os.environ.get("MOYASAR_BASE_URL", "https://api.moyasar.com/v1")
 
-
-STRIPE_SECRET_KEY = "sk_test_xxxxxxxxxxxxx"
-STRIPE_PUBLISHABLE_KEY = "pk_test_xxxxxxxxxxxxx"
 
 
 

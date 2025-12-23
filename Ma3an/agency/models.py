@@ -22,6 +22,14 @@ class Tour(models.Model):
     end_date = models.DateField()
     days = models.PositiveIntegerField(default=1)
 
+    agency = models.ForeignKey(
+        "accounts.Agency",
+        on_delete=models.CASCADE,
+        related_name="tours",
+        null=True,
+        blank=True
+    )
+
     tour_guide = models.ForeignKey(
         "accounts.TourGuide",
         on_delete=models.SET_NULL,

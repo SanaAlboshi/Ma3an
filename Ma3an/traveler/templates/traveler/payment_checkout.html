@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Payment</title>
+    <!-- Moyasar -->
+    <script src="https://cdn.moyasar.com/mpf/1.6.1/moyasar.js"></script>
+    <link rel="stylesheet" href="https://cdn.moyasar.com/mpf/1.6.1/moyasar.css">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+          --primary: rgb(46, 124, 50);
+          --secondary: #14b8a6;
+          --bg: #f8fafc;
+          --card-bg: #ffffff;
+          --text-dark: #0f172a;
+          --text-muted: #64748b;
+      }
+
+      * {
+          box-sizing: border-box;
+          font-family: 'Poppins', sans-serif;
+      }
+
+      body {
+          margin: 0;
+          min-height: 100vh;
+          background: linear-gradient(135deg, rgb(46, 124, 50), #14b8a6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+      }
+
+      .payment-wrapper {
+          background: var(--card-bg);
+          width: 100%;
+          max-width: 460px;
+          border-radius: 18px;
+          box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+          padding: 32px;
+          animation: fadeIn 0.6s ease;
+      }
+
+      @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+
+      .brand {
+          text-align: center;
+          margin-bottom: 24px;
+      }
+
+      .brand h1 {
+          margin: 0;
+          font-size: 24px;
+          color: var(--primary);
+          font-weight: 700;
+      }
+
+      .brand span {
+          font-size: 13px;
+          color: var(--text-muted);
+      }
+
+      .tour-box {
+          background: var(--bg);
+          border-radius: 14px;
+          padding: 18px;
+          margin-bottom: 24px;
+      }
+
+      .tour-box h2 {
+          margin: 0 0 8px;
+          font-size: 18px;
+          color: var(--text-dark);
+      }
+
+      .price {
+          font-size: 22px;
+          font-weight: 700;
+          color: var(--primary);
+      }
+
+      .price span {
+          font-size: 14px;
+          color: var(--text-muted);
+          font-weight: 500;
+      }
+
+      .secure-note {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+          color: var(--text-muted);
+          margin: 16px 0 22px;
+      }
+
+      .secure-note::before {
+          content: "🔒";
+          font-size: 16px;
+      }
+
+      /* Moyasar form override */
+      .mysr-form {
+          --primary-color: var(--primary);
+          --border-radius: 12px;
+      }
+
+      footer {
+          text-align: center;
+          margin-top: 20px;
+          font-size: 12px;
+          color: var(--text-muted);
+      }
+
+      footer span {
+          color: var(--primary);
+          font-weight: 600;
+      }
+
+      @media (max-width: 480px) {
+          .payment-wrapper {
+              padding: 24px;
+          }
+      }
+  </style>
+</head>
+<body>
+
+  <div class="payment-wrapper">
+
+    <div class="brand">
+        <h1>Ma3an</h1>
+        <span>Secure Checkout</span>
+    </div>
+
+    <div class="tour-box">
+        <h2>{{ tour.name }}</h2>
+        <div class="price">
+            {{ display_price|floatformat:2 }} <span>SAR</span>
+        </div>
+    </div>
+
+    <div class="secure-note">
+        Your payment is encrypted & protected
+    </div>
+
+    <div class="mysr-form"></div>
+
+    <footer>
+        Powered by <span>Moyasar</span> • Test Mode
+    </footer>
+</div>
+
+<div class="mysr-form"></div>
+
+<script>
+  Moyasar.init({
+    element: '.mysr-form',
+    amount: {{ amount }},
+    currency: 'SAR',
+    description: 'Payment for {{ tour.name }}',
+    publishable_api_key: '{{ publishable_key }}',
+    callback_url: '{{ callback_url }}',
+    methods: ['creditcard'],
+    metadata: {
+      tour_id: '{{ tour.id }}',
+      user_id: '{{ request.user.id }}'
+    }
+  });
+</script>
+
+</body>
+</html>

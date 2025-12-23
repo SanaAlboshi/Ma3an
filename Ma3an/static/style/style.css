@@ -560,3 +560,55 @@ footer a:hover {
         width: 100%;
     }
 }
+
+/* Pay btn style */
+.pay-link {
+    text-decoration: none;
+}
+
+.pay-btn {
+    background: linear-gradient(135deg, #2E7D32, #14b85b);
+    color: #fff;
+    border: none;
+    padding: 12px 26px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(20, 184, 36, 0.6);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Pay Hover */
+.pay-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(20, 184, 36, 0.6);
+}
+
+/* Pay Click */
+.pay-btn:active {
+    transform: scale(0.96);
+}
+
+/* Light shine effect */
+.pay-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 120%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+    );
+    transition: all 0.6s ease;
+}
+
+.pay-btn:hover::after {
+    left: 120%;
+}

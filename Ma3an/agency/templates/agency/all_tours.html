@@ -10,13 +10,22 @@
         <h1>Explore Our Tours</h1>
         <p>Discover amazing destinations and create unforgettable memories</p>
     </div>
+     
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
 
     <!-- Filter Section -->
     <div class="filter-section">
         <form method="get" class="filter-controls">
             <div class="filter-item">
                 <label>Search</label>
-                <input type="text" name="search" placeholder="Search tours..." value="{{ request.GET.search }}">
+                <input type="text"name="q"placeholder="Search tours...(by tour name or agency name)"value="{{ search_query }}"class="search-input"/>
             </div>
 
             <div class="filter-item">
@@ -52,33 +61,6 @@
     </div>
 
     <!-- Tours Grid -->
-    <div class="tours-grid">
-        {% for item in tours %}
-        <div class="tour-card">
-            <div class="tour-image">
-                {% if item.tour.image %}
-                    <img src="{{ item.tour.image.url }}" alt="{{ item.tour.name }}">
-                {% else %}
-                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" alt="{{ item.tour.name }}">
-                {% endif %}
-            </div>
-            <div class="tour-content">
-                <h3 class="tour-title">{{ item.tour.name }}</h3>
-                <div class="tour-meta">
-                    <div class="tour-meta-item"><i class="fas fa-map-marker-alt"></i><span>{{ item.tour.city }}, {{ item.tour.country }}</span></div>
-                    <div class="tour-meta-item"><i class="far fa-clock"></i><span>{{ item.duration }} day{% if item.duration > 1 %}s{% endif %}</span></div>
-                </div>
-                <div class="price-section">
-                    <div class="tour-price">{{ item.tour.price }} SAR<span class="person-price">/ person</span></div>
-                </div>
-                <div class="action-buttons">
-                    <a href="{% url 'agency:tour_detail' item.tour.id %}" class="btn-book">Details</a>
-                    <a href="{% url 'agency:edit_tour' item.tour.id %}" class="btn-secondary-action">Edit</a>
-                    <a href="{% url 'agency:delete_tour' item.tour.id %}" class="btn-secondary-action">Delete</a>
-                </div>
-            </div>
-        </div>
-
         <div class="tours-grid">
             {% for item in tours %}
             <div class="tour-card">
@@ -106,8 +88,8 @@
                     {% if user.is_authenticated %}
 
                         <!-- Traveler -->
-                        {% if user.is_authenticated and user.traveler_profile %}
-                        <a href="{% url 'traveler:start_payment_view' %}?tour_id={{ item.tour.id }}&next={{ request.path }}"><button class="buy-btn">Pay Now</button></a>
+                        {% if user.role == 'traveler' %}
+                        <a href="{% url 'traveler:start_payment_view' %}?tour_id={{ item.tour.id }}" class="pay-link"><button class="pay-btn">Pay Now</button></a>
                         {% endif %}
 
                 
@@ -136,8 +118,6 @@
             </div>
             {% endfor %}
         </div>
-        {% endfor %}
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
