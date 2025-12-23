@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from accounts.models import Agency, TourGuide
 from django.contrib import messages
-
+from agency.models import Tour
 # Create your views here.
 
 
@@ -41,10 +41,21 @@ def delete_tourguide(request, guide_id):
             f'Tour guide "{first_name} {last_name}" has been deleted successfully.'
         )
 
-    # if request.method == 'POST':
-    #     guide.user.delete()
         return redirect('tourGuide:all_tourguides')
 
     return redirect('tourGuide:all_guides')
+
+
+@login_required
+def my_tours_view(request):
+    tours = []
+
+    if request.user.role == 'tourGuide':
+        tours = Tour.objects.filter(tour_guide__user=request.user).order_by('-start_date')
+
+    context = {
+        'tours': tours
+    }
+    return render(request, 'tourguide/my_tours.html', context)
 
 

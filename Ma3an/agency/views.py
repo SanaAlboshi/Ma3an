@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Tour, TourSchedule
 from datetime import datetime
+from accounts.models import TourGuide
 # -------------------------
 # Agency Views
 # -------------------------
@@ -73,6 +74,21 @@ def add_tour_view(request):
                 'end_date': request.POST.get('end_date'),
                 
             })
+            
+    # adding tour guide        
+    tour_guides = TourGuide.objects.filter(agency=request.user.agency_profile)
+    # filtering tour guides according to start and end dates of their tours
+    if start_date_str and end_date_str:
+        try:
+            new_start = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+            new_end = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+
+            tour_guides = tour_guides.exclude(
+                tour__start_date__lte=new_end,
+                tour__end_date__gte=new_start
+            ).distinct()
+        except ValueError:
+            pass
 
         if start_date > end_date:
             messages.error(request, "❌ تاريخ البداية لا يمكن أن يكون بعد تاريخ النهاية")
@@ -107,6 +123,7 @@ def add_tour_view(request):
         'start_date': start_date_str,
         'end_date': end_date_str,
         'current_step': 1,
+        'tour_guides': tour_guides,
     })
 
 
