@@ -103,8 +103,11 @@
                     {% endif %}
 
                     <div class="d-flex gap-3 mb-4 text-muted">
-                        <span><i class="fas fa-map-marker-alt text-primary me-1"></i> {{ tour.city }}, {{ tour.country
-                            }}</span>
+                        <span>
+  <i class="fas fa-map-marker-alt text-primary me-1"></i>
+  {{ tour.city }}{% if tour.country %}, {{ tour.country }}{% endif %}
+</span>
+
                         <span><i class="fas fa-users text-primary me-1"></i> {{ tour.travelers }} Travelers</span>
                     </div>
                     <h5 class="fw-bold">Description</h5>

@@ -17,7 +17,6 @@
         font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
     }
 
-    /* الحاوية الكبيرة (البطاقة البيضاء الخلفية) */
     .main-edit-container {
         background: #ffffff;
         border-radius: var(--primary-radius);
@@ -26,7 +25,6 @@
         border: 1px solid rgba(0,0,0,0.03);
     }
 
-    /* ستايل بطاقة العرض (مثل الصورة المرفقة) */
     .preview-card {
         position: relative;
         width: 100%;
@@ -36,7 +34,7 @@
         overflow: hidden;
         margin: 0 auto;
         box-shadow: 0 30px 60px rgba(0,0,0,0.15);
-        border: 10px solid #fff; /* الإطار الأبيض الخارجي */
+        border: 10px solid #fff;
     }
 
     .preview-image {
@@ -45,7 +43,6 @@
         object-fit: cover;
     }
 
-    /* العناصر فوق الصورة */
     .glass-badge {
         position: absolute;
         top: 20px;
@@ -58,22 +55,6 @@
         border-radius: 50px;
         font-weight: 600;
         font-size: 0.9rem;
-        border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .heart-icon {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        width: 45px;
-        height: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        color: white;
         border: 1px solid rgba(255,255,255,0.2);
     }
 
@@ -102,7 +83,6 @@
         gap: 8px;
     }
 
-    /* تنسيقات حقول المدخلات */
     .section-title {
         font-weight: 800;
         font-size: 1.2rem;
@@ -150,6 +130,7 @@
         <div class="main-edit-container">
             <div class="row g-5">
                 
+                <!-- معاينة البطاقة -->
                 <div class="col-lg-5 border-end">
                     <div class="sticky-top" style="top: 20px;">
                         <h5 class="text-muted fw-bold mb-4">Card Preview</h5>
@@ -161,20 +142,16 @@
                                 <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800" class="preview-image" id="img-live">
                             {% endif %}
                             
-                            <div class="glass-badge" id="price-live">${{ tour.price|default:"0" }} Night</div>
-                            <div class="heart-icon"><i class="bi bi-heart"></i></div>
+                            <div class="glass-badge" id="price-live">${{ tour.price|default:"0" }} /person</div>
 
                             <div class="preview-content">
                                 <h3 class="fw-bold mb-1" id="name-live">{{ tour.name|default:"Tour Name" }}</h3>
                                 <p class="small opacity-75 mb-3" id="loc-live">
                                     <i class="bi bi-geo-alt-fill me-1"></i> {{ tour.city }}, {{ tour.country }}
                                 </p>
-                                
                                 <div class="d-flex gap-3 small mb-2">
                                     <span><i class="bi bi-person-fill me-1"></i> <span id="traveler-live">{{ tour.travelers }}</span> Guests</span>
-                                    <span><i class="bi bi-star-fill text-warning me-1"></i> 4.8 (20)</span>
                                 </div>
-
                                 <button type="button" class="reserve-btn-preview">
                                     <i class="bi bi-pencil-square"></i> Reserve
                                 </button>
@@ -190,6 +167,7 @@
                     </div>
                 </div>
 
+                <!-- بيانات التور -->
                 <div class="col-lg-7">
                     <div class="section-title text-primary"><i class="bi bi-info-circle-fill"></i> General Information</div>
                     
@@ -220,6 +198,7 @@
                         </div>
                     </div>
 
+                    <!-- Tour Schedule -->
                     <div class="section-title text-primary mt-5 d-flex justify-content-between">
                         <span><i class="bi bi-calendar-event-fill"></i> Tour Schedule</span>
                         <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" id="add-new-activity">
@@ -238,8 +217,14 @@
                                 </div>
                             </div>
                             <div class="row g-2">
-                                <div class="col-12 mb-2">
+                                <div class="col-md-2">
+                                    <input type="number" name="schedule_{{ schedule.id }}_day" class="form-control" value="{{ schedule.day_number }}" placeholder="Day">
+                                </div>
+                                <div class="col-md-4">
                                     <input type="text" name="schedule_{{ schedule.id }}_title" class="form-control fw-bold" value="{{ schedule.activity_title }}" placeholder="Activity Title">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" name="schedule_{{ schedule.id }}_location" class="form-control" value="{{ schedule.location_name }}" placeholder="Location Name">
                                 </div>
                                 <div class="col-md-6">
                                     <input type="time" name="schedule_{{ schedule.id }}_start" class="form-control" value="{{ schedule.start_time|time:'H:i' }}">
@@ -266,7 +251,6 @@
 </div>
 
 <script>
-    // وظيفة تحديث الصورة فوراً في المعاينة
     function previewFile(input) {
         var file = input.files[0];
         if (file) {
@@ -278,14 +262,12 @@
         }
     }
 
-    // تحديث الموقع الجغرافي
     function updateLoc() {
         const city = document.getElementsByName('city')[0].value;
         const country = document.getElementsByName('country')[0].value;
         document.getElementById('loc-live').innerHTML = `<i class="bi bi-geo-alt-fill me-1"></i> ${city}, ${country}`;
     }
 
-    // إضافة نشاط جديد
     document.getElementById('add-new-activity').addEventListener('click', function() {
         const container = document.getElementById('new-activities');
         const div = document.createElement('div');
@@ -296,13 +278,13 @@
                 <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
             </div>
             <div class="row g-2">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <input type="number" name="new_day[]" class="form-control" placeholder="Day">
                 </div>
-                <div class="col-md-9">
+                <div class="col-md-4">
                     <input type="text" name="new_title[]" class="form-control fw-bold" placeholder="Title">
                 </div>
-                <div class="col-12">
+                <div class="col-md-6">
                     <input type="text" name="new_location[]" class="form-control" placeholder="Location Name">
                 </div>
                 <div class="col-md-6">
@@ -316,4 +298,6 @@
         container.prepend(div);
     });
 </script>
+
 {% endblock %}
+ Night

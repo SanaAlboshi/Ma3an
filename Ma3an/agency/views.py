@@ -491,23 +491,20 @@ def all_tours_view(request):
     )
 
     # ===== تجهيز البيانات للعرض =====
+    # تجهيز البيانات للعرض
     tours_with_duration = [
-        {
-            'tour': tour,
-            'duration': tour.days
-        }
-        for tour in tours
-    ]
-
+       {'tour': tour, 'duration': tour.days}
+       for tour in page_obj
+]
 
     return render(request, 'agency/all_tours.html', {
-        'page_obj': page_obj,
-        'cities': cities,  # قائمة المدن للفلتر
-        'selected_destination': destination,
-        'selected_duration': duration,
-        'selected_price_range': price_range,
-        'search_query': query,
-    })
+    'tours': tours_with_duration,
+    'cities': cities,
+    'selected_destination': destination,
+    'search_query': query,
+})
+
+    
 
 
 def tour_detail_view(request, tour_id):
@@ -519,6 +516,8 @@ def tour_detail_view(request, tour_id):
         'current_step': 3
         
     })
+
+
 @login_required
 def edit_tour_view(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id, agency=request.user.agency_profile)
@@ -527,10 +526,10 @@ def edit_tour_view(request, tour_id):
 
     if request.method == 'POST':
         # 1. تحديث بيانات الرحلة الأساسية
-        tour.name = request.POST.get('name')
-        tour.description = request.POST.get('description')
-        tour.country = request.POST.get('country')
-        tour.city = request.POST.get('city')
+        tour.name = request.POST.get('name') or "No name"
+        tour.description = request.POST.get('description') or "No description"
+        tour.country = request.POST.get('country') or "Unknown"
+        tour.city = request.POST.get('city') or "Unknown"
         tour.travelers = int(request.POST.get('travelers') or 0)
         tour.price = float(request.POST.get('price') or 0)
 
@@ -548,37 +547,36 @@ def edit_tour_view(request, tour_id):
                 schedule.delete()
                 continue
 
-            # جلب البيانات مع وضع قيم افتراضية للحقول الإجبارية لتجنب IntegrityError
-            schedule.start_time = request.POST.get(f"schedule_{schedule.id}_start")
-            schedule.end_time = request.POST.get(f"schedule_{schedule.id}_end")
-            schedule.activity_title = request.POST.get(f"schedule_{schedule.id}_title")
-            
-            # حل مشكلة NOT NULL: إذا كان الحقل فارغاً نضع قيمة نصية
-            location = request.POST.get(f"schedule_{schedule.id}_location")
-            schedule.location_name = location if location else "TBA" # To Be Announced
-            
-            schedule.description = request.POST.get(f"schedule_{schedule.id}_desc")
-            
+            # جلب البيانات مع وضع قيم افتراضية لتجنب IntegrityError
+            schedule.start_time = request.POST.get(f"schedule_{schedule.id}_start") or "00:00"
+            schedule.end_time = request.POST.get(f"schedule_{schedule.id}_end") or "00:00"
+            schedule.activity_title = request.POST.get(f"schedule_{schedule.id}_title") or "No title"
+            schedule.location_name = request.POST.get(f"schedule_{schedule.id}_location") or "TBA"
+            schedule.description = request.POST.get(f"schedule_{schedule.id}_desc") or "No description"
+
             # حفظ التعديلات
             schedule.save()
 
         # 3. إضافة أنشطة جديدة (إن وجدت)
         new_titles = request.POST.getlist("new_title[]")
         new_days = request.POST.getlist("new_day[]")
-        new_locations = request.POST.getlist("new_location[]") # تأكدي من وجودها في JS
+        new_locations = request.POST.getlist("new_location[]")  # تأكدي من وجودها في JS
+        new_starts = request.POST.getlist("new_start[]")
+        new_ends = request.POST.getlist("new_end[]")
+        new_descs = request.POST.getlist("new_desc[]")
 
         for i in range(len(new_titles)):
             if not new_titles[i].strip():
                 continue
-                
+
             TourSchedule.objects.create(
                 tour=tour,
                 day_number=new_days[i] if new_days[i] else 1,
-                start_time=request.POST.getlist("new_start[]")[i],
-                end_time=request.POST.getlist("new_end[]")[i],
+                start_time=new_starts[i] if (len(new_starts) > i and new_starts[i]) else "00:00",
+                end_time=new_ends[i] if (len(new_ends) > i and new_ends[i]) else "00:00",
                 activity_title=new_titles[i],
                 location_name=new_locations[i] if (len(new_locations) > i and new_locations[i]) else "TBA",
-                description=request.POST.getlist("new_desc[]")[i],
+                description=new_descs[i] if (len(new_descs) > i and new_descs[i]) else "No description",
             )
 
         messages.success(request, "✅ Tour updated successfully!")
@@ -589,6 +587,7 @@ def edit_tour_view(request, tour_id):
         'tour_guides': tour_guides,
         'schedules': schedules,
     })
+
 
 
 @login_required

@@ -165,7 +165,6 @@
                          View Details
                     </a>
 
-                    {# تأكد أن item.tour.agency_user هو الحقل الذي يربط الرحلة بصاحبها في الموديل #}
                     {% if item.tour.agency_user == user %}
                     <div class="admin-tools">
                         <a href="{% url 'agency:edit_tour' item.tour.id %}" class="btn-admin-tool">
