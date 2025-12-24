@@ -1,44 +1,319 @@
-<h2>Edit Tour</h2>
+{% extends 'main/base.html' %}
+{% load static %}
 
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label>Name:</label>
-    <input type="text" name="tourName" value="{{ tour.name }}">
-    
-    <label>Description:</label>
-    <textarea name="description">{{ tour.description }}</textarea>
-    
-    <label>Country:</label>
-    <input type="text" name="country" value="{{ tour.country }}">
-    
-    <label>City:</label>
-    <input type="text" name="city" value="{{ tour.city }}">
-    
-    <label>Travelers:</label>
-    <input type="number" name="travelers" value="{{ tour.travelers }}">
-    
-    <label>Price:</label>
-    <input type="number" name="price" value="{{ tour.price }}">
-    
-    <label>Start Date:</label>
-    <input type="date" name="startDate" value="{{ tour.start_date }}">
-    
-    <label>End Date:</label>
-    <input type="date" name="endDate" value="{{ tour.end_date }}">
-    
-    <label>Tour Guide:</label>
-    <select name="tourGuide">
-        <option value="">Select guide</option>
-        {% for guide in guides %}
-            <option value="{{ guide.id }}" {% if tour.tour_guide == guide %}selected{% endif %}>
-                {{ guide.name }}
-            </option>
-        {% endfor %}
-    </select>
-    
-    <label>Image:</label>
-    <input type="file" name="tourImage">
-    
-    <button type="submit">Save Changes</button>
-</form>
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
+<style>
+    :root {
+        --primary-radius: 35px;
+        --inner-radius: 25px;
+        --glass-bg: rgba(255, 255, 255, 0.15);
+        --glass-blur: blur(12px);
+    }
+
+    body { 
+        background-color: #f0f2f5; 
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+    }
+
+    /* الحاوية الكبيرة (البطاقة البيضاء الخلفية) */
+    .main-edit-container {
+        background: #ffffff;
+        border-radius: var(--primary-radius);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+        padding: 40px;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    /* ستايل بطاقة العرض (مثل الصورة المرفقة) */
+    .preview-card {
+        position: relative;
+        width: 100%;
+        max-width: 380px;
+        height: 520px;
+        border-radius: var(--inner-radius);
+        overflow: hidden;
+        margin: 0 auto;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        border: 10px solid #fff; /* الإطار الأبيض الخارجي */
+    }
+
+    .preview-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* العناصر فوق الصورة */
+    .glass-badge {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .heart-icon {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .preview-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 25px;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+        color: white;
+    }
+
+    .reserve-btn-preview {
+        background: #ffffff;
+        color: #000;
+        width: 100%;
+        border: none;
+        padding: 14px;
+        border-radius: 18px;
+        font-weight: 700;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    /* تنسيقات حقول المدخلات */
+    .section-title {
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        color: #1a1a1a;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 15px;
+        padding: 12px 18px;
+        border: 2px solid #f1f3f5;
+        background: #f8f9fa;
+        transition: 0.3s;
+    }
+
+    .form-control:focus {
+        background: #fff;
+        border-color: #0d6efd;
+        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.05);
+    }
+
+    .schedule-item {
+        background: #f8f9fa;
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 2px solid transparent;
+        transition: 0.3s;
+    }
+
+    .schedule-item:hover {
+        border-color: #e9ecef;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+</style>
+
+<div class="container py-5">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="main-edit-container">
+            <div class="row g-5">
+                
+                <div class="col-lg-5 border-end">
+                    <div class="sticky-top" style="top: 20px;">
+                        <h5 class="text-muted fw-bold mb-4">Card Preview</h5>
+                        
+                        <div class="preview-card">
+                            {% if tour.image %}
+                                <img src="{{ tour.image.url }}" class="preview-image" id="img-live">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800" class="preview-image" id="img-live">
+                            {% endif %}
+                            
+                            <div class="glass-badge" id="price-live">${{ tour.price|default:"0" }} Night</div>
+                            <div class="heart-icon"><i class="bi bi-heart"></i></div>
+
+                            <div class="preview-content">
+                                <h3 class="fw-bold mb-1" id="name-live">{{ tour.name|default:"Tour Name" }}</h3>
+                                <p class="small opacity-75 mb-3" id="loc-live">
+                                    <i class="bi bi-geo-alt-fill me-1"></i> {{ tour.city }}, {{ tour.country }}
+                                </p>
+                                
+                                <div class="d-flex gap-3 small mb-2">
+                                    <span><i class="bi bi-person-fill me-1"></i> <span id="traveler-live">{{ tour.travelers }}</span> Guests</span>
+                                    <span><i class="bi bi-star-fill text-warning me-1"></i> 4.8 (20)</span>
+                                </div>
+
+                                <button type="button" class="reserve-btn-preview">
+                                    <i class="bi bi-pencil-square"></i> Reserve
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 p-3 bg-light rounded-4 text-center">
+                            <label class="btn btn-dark rounded-pill px-4 btn-sm">
+                                <i class="bi bi-upload me-2"></i> Update Cover Image
+                                <input type="file" name="image" hidden onchange="previewFile(this)">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="section-title text-primary"><i class="bi bi-info-circle-fill"></i> General Information</div>
+                    
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="small fw-bold text-muted">TOUR NAME</label>
+                            <input type="text" name="name" class="form-control" value="{{ tour.name }}" onkeyup="document.getElementById('name-live').innerText = this.value">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted">CITY</label>
+                            <input type="text" name="city" class="form-control" value="{{ tour.city }}" onkeyup="updateLoc()">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted">COUNTRY</label>
+                            <input type="text" name="country" class="form-control" value="{{ tour.country }}" onkeyup="updateLoc()">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted">PRICE (SAR)</label>
+                            <input type="number" name="price" class="form-control" value="{{ tour.price }}" onkeyup="document.getElementById('price-live').innerText = '$' + this.value + ' Night'">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted">MAX TRAVELERS</label>
+                            <input type="number" name="travelers" class="form-control" value="{{ tour.travelers }}" onkeyup="document.getElementById('traveler-live').innerText = this.value">
+                        </div>
+                        <div class="col-12">
+                            <label class="small fw-bold text-muted">DESCRIPTION</label>
+                            <textarea name="description" class="form-control" rows="4">{{ tour.description }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="section-title text-primary mt-5 d-flex justify-content-between">
+                        <span><i class="bi bi-calendar-event-fill"></i> Tour Schedule</span>
+                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" id="add-new-activity">
+                            <i class="bi bi-plus"></i> Add Day
+                        </button>
+                    </div>
+
+                    <div id="activities-container">
+                        {% for schedule in schedules %}
+                        <div class="schedule-item shadow-sm">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-primary rounded-pill px-3">Day {{ schedule.day_number }}</span>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="schedule_{{ schedule.id }}_delete" id="del_{{ schedule.id }}">
+                                    <label class="form-check-label small text-danger" for="del_{{ schedule.id }}">Delete</label>
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-12 mb-2">
+                                    <input type="text" name="schedule_{{ schedule.id }}_title" class="form-control fw-bold" value="{{ schedule.activity_title }}" placeholder="Activity Title">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="time" name="schedule_{{ schedule.id }}_start" class="form-control" value="{{ schedule.start_time|time:'H:i' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="time" name="schedule_{{ schedule.id }}_end" class="form-control" value="{{ schedule.end_time|time:'H:i' }}">
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div id="new-activities"></div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-top">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow-lg py-3">
+                            <i class="bi bi-check-circle-fill me-2"></i> Save Changes
+                        </button>
+                        <a href="{% url 'agency:my_tours' %}" class="btn btn-link w-100 mt-2 text-muted text-decoration-none">Cancel and exit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // وظيفة تحديث الصورة فوراً في المعاينة
+    function previewFile(input) {
+        var file = input.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                document.getElementById('img-live').src = reader.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // تحديث الموقع الجغرافي
+    function updateLoc() {
+        const city = document.getElementsByName('city')[0].value;
+        const country = document.getElementsByName('country')[0].value;
+        document.getElementById('loc-live').innerHTML = `<i class="bi bi-geo-alt-fill me-1"></i> ${city}, ${country}`;
+    }
+
+    // إضافة نشاط جديد
+    document.getElementById('add-new-activity').addEventListener('click', function() {
+        const container = document.getElementById('new-activities');
+        const div = document.createElement('div');
+        div.className = 'schedule-item border-primary-subtle shadow-sm animate__animated animate__fadeIn';
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge bg-success rounded-pill px-3">New Entry</span>
+                <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="number" name="new_day[]" class="form-control" placeholder="Day">
+                </div>
+                <div class="col-md-9">
+                    <input type="text" name="new_title[]" class="form-control fw-bold" placeholder="Title">
+                </div>
+                <div class="col-12">
+                    <input type="text" name="new_location[]" class="form-control" placeholder="Location Name">
+                </div>
+                <div class="col-md-6">
+                    <input type="time" name="new_start[]" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <input type="time" name="new_end[]" class="form-control">
+                </div>
+            </div>
+        `;
+        container.prepend(div);
+    });
+</script>
+{% endblock %}

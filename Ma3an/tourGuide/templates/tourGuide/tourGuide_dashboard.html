@@ -1,8 +1,133 @@
-{% extends "main/base.html" %}
+{% extends 'main/base.html' %}
 {% load static %}
 
-{% block title %}Agency Signup{% endblock %}
+{% block extra_css %}
+<style>
+
+
+
+
+    .dashboard-content {
+        margin-left: 280px;
+        padding: 2rem;
+    }
+
+    .stat-card {
+        border-radius: 15px;
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .tour-img {
+        width: 80px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 
+{% include 'tourGuide/sidebar.html' %}
+
+
+<!-- Main -->
+<main class="dashboard-content">
+    <div class="container-fluid">
+
+        <!-- Header -->
+        <div class="mb-4">
+            <h3 class="fw-bold">Welcome Back 👋</h3>
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card stat-card shadow-sm p-3 text-center">
+                    <i class="bi bi-calendar-event fs-2 text-primary mb-2"></i>
+                    <h4 class="fw-bold">{{ upcoming_tours_count }}</h4>
+                    <p class="text-muted small mb-0">Upcoming Tours</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card stat-card shadow-sm p-3 text-center">
+                    <i class="bi bi-play-circle fs-2 text-success mb-2"></i>
+                    <h4 class="fw-bold">{{ active_tours_count }}</h4>
+                    <p class="text-muted small mb-0">Active Tours</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card stat-card shadow-sm p-3 text-center">
+                    <i class="bi bi-briefcase fs-2 text-warning mb-2"></i>
+                    <h4 class="fw-bold">{{ tours.count }}</h4>
+                    <p class="text-muted small mb-0">Total Assigned Tours</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tours Table -->
+        <div class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
+            <h5 class="fw-bold mb-4">My Tours</h5>
+
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle">
+                    <thead>
+                        <tr class="text-muted small border-bottom">
+                            <th>Tour</th>
+                            <th>Dates</th>
+                            <th>Status</th>
+                            <th class="text-end">Capacity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tour in tours %}
+                        <tr class="border-bottom">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if tour.image %}
+                                    <img src="{{ tour.image.url }}" class="tour-img me-3">
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ tour.name }}</div>
+                                        <div class="text-muted small">{{ tour.city }}</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="small">
+                                {{ tour.start_date }} → {{ tour.end_date }}
+                            </td>
+
+                            <td>
+                                {% if tour.start_date > today %}
+                                <span class="badge bg-primary-subtle text-primary">Upcoming</span>
+                                {% else %}
+                                <span class="badge bg-success-subtle text-success">Active</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end fw-bold">
+                                {{ tour.travelers }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                No tours assigned yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
 {% endblock %}

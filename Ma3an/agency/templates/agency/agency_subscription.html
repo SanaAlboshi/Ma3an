@@ -1,68 +1,166 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select the subscription package</title>
-</head>
-<body>
-    <h1>Select the subscription package</h1>
-    <!-- Packages Grid -->
-    <div>
-        <!-- Basic Package -->
-        <div>
-            <h2>Basic</h2>
-            <p>Price: $9.99 per Month</p>
-            <ul>
-                <li>20 Tours</li>
-                <li>30 Supervisors</li>
-                <li>100 Travelers</li>
-                <li>limited Notifications</li>
-                <li>Dedicated Account Manager (Not included)</li>
-                <li>API Access (Not included)</li>
-                <li>Live GPS tracking (Not included)</li>
-            </ul>
-            <a href="{% url 'agency:agency_payment' %}" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
-                Select Plan
-            </a>
-        </div>
-        <!-- Standard Package -->
-        <div>
-            <h2>Standard</h2>
-            <p>Price: $19.99 per Month</p>
-            <ul>
-                <li>50 Tours</li>
-                <li>90 Supervisors</li>
-                <li>200 Travelers</li>
-                <li>Unlimited Notifications</li>
-                <li>Dedicated Account Manager</li>
-                <li>API Access (Not included)</li>
-                <li>Live GPS tracking (Not included)</li>
-            </ul>
-            <a href="{% url 'agency:agency_payment' %}" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
-                Select Plan
-            </a>
-        </div>
-        <!-- Premium Package -->
-        <div>
-            <h2>Premium</h2>
-            <p>Price: $49.99 per Month</p>
-            <ul>
-                <li>Unlimited Tours</li>
-                <li>Unlimited Supervisors</li>
-                <li>Unlimited Travelers</li>
-                <li>Unlimited Notifications</li>
-                <li>Dedicated Account Manager</li>
-                <li>API Access</li>
-                <li>Live GPS tracking</li>
-            </ul>
-            <a href="{% url 'agency:agency_payment' %}" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
-                Select Plan
-            </a>
-        </div>
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    :root { 
+        --bg-color: #ffffff;
+        --card-border: #edf2f7;
+        --text-dark: #1a202c;
+        --text-muted: #718096;
+        --accent: #4a90e2; 
+        --success: #28a745;
+        --danger: #dc3545;
+        --disabled-gray: #a0aec0;
+    }
+    
+    body { background-color: var(--bg-color); font-family: 'Inter', -apple-system, sans-serif; }
+    
+    .pricing-container { padding: 100px 0; }
+    .page-title { font-weight: 800; color: var(--text-dark); font-size: 2.5rem; letter-spacing: -1px; }
+
+    .plan-card {
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 40px;
+        transition: all 0.4s ease;
+        background: #fff;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    
+    .plan-card:hover {
+        border-color: var(--accent);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+        transform: translateY(-8px);
+    }
+
+    .plan-type { 
+        color: var(--accent); 
+        font-weight: 700; 
+        font-size: 0.8rem; 
+        text-transform: uppercase; 
+        letter-spacing: 1.5px;
+        margin-bottom: 15px;
+    }
+    
+    .plan-price { font-size: 3rem; font-weight: 800; color: var(--text-dark); margin-bottom: 25px; }
+    .plan-price span { font-size: 1.1rem; color: var(--text-muted); font-weight: 400; }
+
+    .features-list { list-style: none; padding: 0; margin-bottom: 40px; flex-grow: 1; }
+    .features-list li { 
+        padding: 12px 0; 
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+    
+    /* الأيقونات الملونة */
+    .bi-check-lg { color: var(--success); margin-right: 12px; font-size: 1.2rem; font-weight: bold; }
+    .bi-x-lg { color: var(--danger); margin-right: 12px; font-size: 1.1rem; font-weight: bold; }
+
+    /* ميزة غير متوفرة (رمادي وبدون شطب) */
+    .text-disabled { color: var(--disabled-gray) !important; }
+
+    .buy-btn {
+        background: var(--text-dark);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 14px;
+        font-weight: 600;
+        transition: 0.3s;
+        width: 100%;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .buy-btn:hover { background: var(--accent); color: white; }
+
+    .best-value { border: 2px solid var(--accent); }
+    .best-value::before {
+        content: "MOST POPULAR";
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container pricing-container">
+    <div class="text-center mb-5">
+        <h1 class="page-title">Choose the Perfect Plan for Your Agency</h1>
+        <p class="text-muted">Scale your operations with our professional agency tools</p>
     </div>
-    <div class="mb-3">
-        <a href="{% url 'agency:dashboard' %}" class="btn btn-secondary">&larr; Back to Dashboard</a>
-    </div>
-</body>
-</html>
+
+    {% if messages %}
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6">
+                {% for message in messages %}
+                    <div class="alert alert-dark text-center rounded-3">{{ message }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if current_subscription %}
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="plan-card text-center" style="border-top: 4px solid var(--success);">
+                    <span class="text-success fw-bold small mb-2 d-block">YOUR CURRENT PLAN</span>
+                    <div class="plan-price">{{ amount_paid }}<span> SAR</span></div>
+                    <h4 class="fw-bold mb-4">{{ current_subscription.subscriptionType|capfirst }}</h4>
+                    <ul class="features-list text-start border-top pt-4">
+                        <li><i class="bi bi-check-lg"></i> {{ current_subscription.tours_limit|default:"Unlimited" }} Tours included</li>
+                        <li><i class="bi bi-check-lg"></i> {{ current_subscription.supervisors_limit|default:"Unlimited" }} Agency Guides</li>
+                    </ul>
+                    <div class="p-3 bg-light rounded-3 text-muted small">Subscription is active</div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row g-4 justify-content-center">
+            {% for plan in subscriptions %}
+            <div class="col-lg-4 col-md-6">
+                <div class="plan-card {% if forloop.counter == 2 %}best-value{% endif %}">
+                    <span class="plan-type">{{ plan.subscriptionType }}</span>
+                    <div class="plan-price">{{ plan.price|floatformat:0 }}<span> SAR</span></div>
+                    
+                    <ul class="features-list">
+                        <li><i class="bi bi-check-lg"></i> {{ plan.tours_limit|default:"Unlimited" }} Tours</li>
+                        <li><i class="bi bi-check-lg"></i> {{ plan.supervisors_limit|default:"Unlimited" }} Supervisors</li>
+                        <li><i class="bi bi-check-lg"></i> {{ plan.travelers_limit|default:"Unlimited" }} Travelers</li>
+                        
+                        {% if forloop.last %}
+                            <li><i class="bi bi-check-lg"></i> Advanced Analytics & Reports</li>
+                        {% else %}
+                            <li class="text-disabled"><i class="bi bi-x-lg"></i> Advanced Analytics & Reports</li>
+                        {% endif %}
+                    </ul>
+
+                    <form action="{% url 'agency:select_subscription' plan.id %}" method="post" class="mt-auto">
+                        {% csrf_token %}
+                        <button type="submit" class="buy-btn">
+                            Get Started
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os 
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -131,13 +133,23 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 # Payment Test 
 
-MOYASAR_PUBLISHABLE_KEY = os.environ.get("MOYASAR_PUBLISHABLE_KEY")
-MOYASAR_SECRET_KEY = os.environ.get("MOYASAR_SECRET_KEY")
-MOYASAR_BASE_URL = os.environ.get("MOYASAR_BASE_URL", "https://api.moyasar.com/v1")
+# MOYASAR_PUBLISHABLE_KEY = os.environ.get("MOYASAR_PUBLISHABLE_KEY")
+# MOYASAR_SECRET_KEY = os.environ.get("MOYASAR_SECRET_KEY")
+# MOYASAR_BASE_URL = os.environ.get("MOYASAR_BASE_URL", "https://api.moyasar.com/v1")
 
 
-STRIPE_SECRET_KEY = "sk_test_xxxxxxxxxxxxx"
-STRIPE_PUBLISHABLE_KEY = "pk_test_xxxxxxxxxxxxx"
+# STRIPE_SECRET_KEY = "sk_test_xxxxxxxxxxxxx"
+# STRIPE_PUBLISHABLE_KEY = "pk_test_xxxxxxxxxxxxx"
+
+
+
+# ===== مفاتيح الدفع للوكالة (Agency) =====
+MOYASAR_PUBLISHABLE_KEY_AGENCY = "pk_test_uvDRh6quuE9ggJojvSYooc7MRipa9t7PcpEfEDk2"   # مفتاح التجربة للوكالة
+MOYASAR_SECRET_KEY_AGENCY = "sk_test_Z2wh9reho7RM2PLxcJa49o7fxyqQGeM5e4koVHzc"        # مفتاح التجربة للوكالة
+MOYASAR_BASE_URL_AGENCY = "https://api.moyasar.com/v1"
+
+
+
 
 
 

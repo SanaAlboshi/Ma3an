@@ -1,163 +1,154 @@
-import stripe
 import json
 import requests
-from django.http import JsonResponse
+from django.http import HttpResponse,JsonResponse
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.conf import settings
 from django.urls import reverse
 from django.db import transaction
 from django.db.models import Q
 from accounts.models import Traveler, Notification
-from traveler.models import TravelerPayment, TravelerLocation
+from traveler.models import Review,TravelerPayment, TravelerLocation
 from agency.models import Tour, TourSchedule
 from traveler.services.active_tour import get_active_join
 from traveler.services.location_service import save_traveler_location
-from traveler.services.geofence_service import check_geofences_and_notify_users
+from traveler.services.geofence_service import check_geofences_and_notify_users, is_inside_geofence
+from django.views.decorators.csrf import csrf_exempt
+from agency.models import Geofence, GeofenceEvent
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
 
-def traveler_required(view_func):
-    return user_passes_test(lambda u: hasattr(u, "traveler"))(view_func)
 
 def traveler_dashboard_view(request):
-    traveler = Traveler.objects.get(user=request.user)
-    active_tours = TravelerPayment.objects.filter(traveler=traveler, status="paid")
+    traveler = request.user.traveler_profile
 
-    user = request.user
-
-    notifications = Notification.objects.filter(
-        user=user
-    ).order_by("-created_at")[:10]
-
-    # announcements = Announcement.objects.filter(tour__in=[t.tour for t in active_tours])
-    next_event = TourSchedule.objects.filter(
-        tour__in=[t.tour for t in active_tours]
-    ).order_by("event_date").first()
-
-    return render(request, "traveler/traveler_dashboard.html", {
-        "active_tours": active_tours,
-        "notifications": notifications,
-        "next_event": next_event,
-    })
-
-
-def tours_view(request):
-    query = request.GET.get("q", "")
-    tours = Tour.objects.filter(
-        Q(tour_name__icontains=query) |
-        Q(travel_agency__agencyName__icontains=query)
+    # Paid tours
+    payments = (
+        TravelerPayment.objects
+        .filter(traveler=traveler, status=TravelerPayment.Status.PAID)
+        .select_related("tour")
     )
-    return render(request, "traveler/tours_view.html", {"tours": tours})
 
-def tour_detail_view(request, tour_id):
-    tour = get_object_or_404(Tour, id=tour_id)
-    traveler = Traveler.objects.get(user=request.user)
+    tours_data = []
 
-    joined = TravelerPayment.objects.filter(traveler=traveler, tour=tour, status="paid").exists()
+    for payment in payments:
+        tour = payment.tour
 
-    if request.method == "POST" and not joined:
-        TravelerPayment.objects.create(
+        next_event = (
+            TourSchedule.objects
+            .filter(tour=tour)
+            .order_by("day_number", "start_time")
+            .first()
+        )
+
+        review = Review.objects.filter(traveler=traveler, tour=tour).first()
+
+        tours_data.append({
+            "tour": tour,
+            "next_event": next_event,
+            "review": review,
+        })
+
+    # Geofence notifications
+    notifications = (
+        Notification.objects
+        .filter(user=request.user)
+        .select_related("event", "event__geofence")
+        .order_by("-created_at")[:10]
+    )
+
+    # Save rivew
+    if request.method == "POST":
+        tour_id = request.POST.get("tour_id")
+        rating = request.POST.get("rating")
+        comment = request.POST.get("comment")
+
+        tour = get_object_or_404(Tour, id=tour_id)
+
+        Review.objects.update_or_create(
             traveler=traveler,
             tour=tour,
-            amount=tour.price
+            defaults={
+                "rating": rating,
+                "comment": comment
+            }
         )
-        return redirect("traveler:payment", tour_id=tour.id)
+        return redirect("traveler:traveler_dashboard_view")
 
-    return render(request, "traveler/tour_detail.html", {
-        "tour": tour,
-        "joined": joined
+    return render(request, "traveler/traveler_dashboard.html", {
+        "tours_data": tours_data,
+        "notifications": notifications,
     })
 
-@traveler_required
-@login_required
+
+
+def traveler_tour_detail_view(request, tour_id):
+    tour = get_object_or_404(
+        Tour.objects.select_related(
+            "agency",
+            "tour_guide",
+            "tour_guide__user"
+        ).prefetch_related(
+            "schedules"
+        ),
+        id=tour_id
+    )
+
+    schedules = tour.schedules.all().order_by("day_number", "start_time")
+
+    return render(request, "traveler/tour_details.html", {
+        "tour": tour,
+        "schedules": schedules,
+    })
+
+
+
 def start_payment_view(request):
     tour = get_object_or_404(Tour, id=request.GET.get("tour_id"))
 
+    # Is the flight full?
+    paid_count = TravelerPayment.objects.filter(
+        tour=tour,
+        status=TravelerPayment.Status.PAID
+    ).count()
+
+    if tour.travelers and paid_count >= tour.travelers:
+        messages.error(request, "This tour is fully booked.")
+        return redirect("agency:all_tours")
+
+    # Did she/he prepaid?
     already_paid = TravelerPayment.objects.filter(
         traveler=request.user.traveler_profile,
         tour=tour,
         status=TravelerPayment.Status.PAID
     ).exists()
 
-    next_url = request.GET.get("next")
     if already_paid:
-        messages.warning(request, "You have already paid for this tour.")
-        if next_url:
-            return redirect(next_url)
-        return redirect("traveler:traveler_dashboard_view")
-    
-    pending_payment = TravelerPayment.objects.filter(
-        traveler=request.user.traveler_profile,
-        tour=tour,
-        status=TravelerPayment.Status.INITIATED
-    ).first()
+        messages.warning(request, "You already paid for this tour.")
+        return redirect("agency:all_tours")
 
-    if pending_payment:
-        if pending_payment.transaction_url:
-            return redirect(pending_payment.transaction_url)
+    # Open the payment page
+    return render(request, "traveler/payment_checkout.html", {
+        "tour": tour,
+        "amount": int(tour.price * 100),
+        "display_price": tour.price, 
+        "publishable_key": settings.MOYASAR_PUBLISHABLE_KEY,
+        "callback_url": request.build_absolute_uri(
+            reverse("traveler:callback_view")
+        ),
+    })
 
-    next_url = request.GET.get("next")
-    if pending_payment:
-        messages.warning(request, "Payment is already in progress.")
-        if next_url:
-            return redirect(next_url)
-        return redirect("traveler:traveler_dashboard_view")
-    
-    amount_halalas = 1000  # 10 SAR
 
-    payment = TravelerPayment.objects.create(
-        traveler=request.user.traveler_profile,
-        amount=amount_halalas,
-        currency="SAR",
-        description="Test Payment (Sandbox)",
-    )
-
-    callback_url = request.build_absolute_uri(
-        reverse("traveler:callback_view")
-    )
-
-    r = requests.post(
-        f"{settings.MOYASAR_BASE_URL}/payments",
-        auth=(settings.MOYASAR_SECRET_KEY, ""),
-        json={
-            "amount": payment.amount,
-            "currency": payment.currency,
-            "description": payment.description,
-            "callback_url": callback_url,
-        },
-        timeout=30,
-    )
-    r.raise_for_status()
-    data = r.json()
-
-    payment.moyasar_id = data.get("id")
-    payment.status = data.get("status", payment.status)
-    payment.transaction_url = (data.get("source") or {}).get("transaction_url")
-    payment.raw = data
-    payment.save()
-
-    if payment.transaction_url:
-        return redirect(payment.transaction_url)
-
-    return render(request, "traveler/payment_error.html", {"payment": payment})
-
-@traveler_required
-@login_required
 def callback_view(request):
     moyasar_id = request.GET.get("id")
-    if not moyasar_id:
-        return render(request, "traveler/callback.html", {"error": "Missing payment id"})
-    
-    payment = get_object_or_404(TravelerPayment, moyasar_id=moyasar_id)
 
-    if payment.status == TravelerPayment.Status.PAID:
-        return render(request, "traveler/callback.html", {
-            "payment": payment,
-            "message": "Payment already confirmed."
+    if not moyasar_id:
+        return render(request, "traveler/payment_result.html", {
+            "success": False,
+            "message": "Missing payment id"
         })
 
+    # Ask Moyasar about the payment result
     r = requests.get(
         f"{settings.MOYASAR_BASE_URL}/payments/{moyasar_id}",
         auth=(settings.MOYASAR_SECRET_KEY, ""),
@@ -166,81 +157,146 @@ def callback_view(request):
     r.raise_for_status()
     data = r.json()
 
-    new_status = data.get("status")
+    status = data.get("status")
+    metadata = data.get("metadata", {})
 
-    if payment.status != TravelerPayment.Status.PAID:
-        payment.status = new_status
+    tour_id = metadata.get("tour_id")
+    user_id = metadata.get("user_id")
+
+    if not tour_id or not user_id:
+        return render(request, "traveler/payment_result.html", {
+            "success": False,
+            "message": "Invalid payment metadata"
+        })
+
+    traveler = Traveler.objects.get(user_id=user_id)
+    tour = Tour.objects.get(id=tour_id)
+
+    # Update the database
+    with transaction.atomic():
+        payment, _ = TravelerPayment.objects.get_or_create(
+            moyasar_id=moyasar_id,
+            defaults={
+                "traveler": traveler,
+                "tour": tour,
+                "amount": data["amount"],
+                "currency": data["currency"],
+                "description": data.get("description", ""),
+            }
+        )
+
         payment.raw = data
+
+        if status == "paid":
+            payment.status = TravelerPayment.Status.PAID
+        elif status in ["failed", "canceled"]:
+            payment.status = TravelerPayment.Status.FAILED
+        else:
+            payment.status = TravelerPayment.Status.INITIATED
+
         payment.save()
 
-    payment.status = data.get("status", payment.status)
-    payment.raw = data
-    payment.save(update_fields=["status", "raw"])
-
-    return render(request, "payments/callback.html", {"payment": payment})
-
-# @login_required
-# def traveler_payment_view(request, tour_id):
-#     traveler = Traveler.objects.get(user=request.user)
-#     join = get_object_or_404(TravelerPayment, traveler=traveler, tour_id=tour_id)
-
-#     intent = stripe.PaymentIntent.create(
-#         amount=int(join.amount * 100),  # cents
-#         currency="usd",
-#         metadata={"tour_id": tour_id, "traveler": traveler.id},
-#     )
-
-#     return render(request, "traveler/payment.html", {
-#         "client_secret": intent.client_secret,
-#         "stripe_key": settings.STRIPE_PUBLISHABLE_KEY,
-#         "join": join
-#     })
-
-# def payment_success(request, tour_id):
-#     join = get_object_or_404(TravelerPayment, tour_id=tour_id, traveler__user=request.user)
-#     join.status = "paid"
-#     join.save()
-#     messages.success(request, "Payment successful 🎉")
-#     return redirect("traveler:tour_detail_view", tour_id=tour_id)
+    return render(request, "traveler/payment_result.html", {
+        "success": status == "paid",
+        "payment": payment
+    })
 
 
-@login_required
-def save_location_view(request):
+
+
+@csrf_exempt
+def save_traveler_location(request):
     if request.method != "POST":
-        return JsonResponse({"ok": False}, status=405)
+        return JsonResponse({"error": "Invalid request"}, status=400)
 
-    data = json.loads(request.body)
-    lat = data.get("lat")
-    lng = data.get("lng")
-    accuracy = data.get("accuracy")
+    traveler = request.user.traveler_profile
+    lat = float(request.POST.get("latitude"))
+    lng = float(request.POST.get("longitude"))
+    tour_id = request.POST.get("tour_id")
+    tour_id = request.POST.get("tour_id")
 
-    if not lat or not lng:
-        return JsonResponse({"ok": False}, status=400)
+    if not tour_id:
+        return JsonResponse(
+            {"error": "tour_id is required"},
+            status=400
+        )
 
-    traveler = request.user.traveler
+
+    geofences = Geofence.objects.filter(
+        schedule__tour_id=tour_id,
+        is_active=True
+    ).select_related("schedule", "schedule__tour", "schedule__tour__tour_guide")
+
+    results = []
+
+    for geofence in geofences:
+        schedule = geofence.schedule
+
+        if not schedule.latitude or not schedule.longitude:
+            continue
+
+        inside, distance = is_inside_geofence(
+            lat,
+            lng,
+            float(schedule.latitude),
+            float(schedule.longitude),
+            geofence.radius_meters
+        )
+
+        tour_guide = schedule.tour.tour_guide
 
 
+        last_event = GeofenceEvent.objects.filter(
+            traveler=traveler,
+            geofence=geofence
+        ).order_by("-occurred_at").first()
 
-    active_join = get_active_join(traveler)
-    if not active_join:
-        return JsonResponse({"ok": False, "error": "No active tour"}, status=403)
+        if (
+            not inside
+            and geofence.trigger_on_exit
+            and (not last_event or last_event.event_type != "exit")
+        ):
+            GeofenceEvent.objects.create(
+                traveler=traveler,
+                tour_guide=tour_guide,
+                geofence=geofence,
+                event_type="exit"
+            )
 
-    current_location = save_traveler_location(
-        traveler,
-        active_join.tour,
-        lat,
-        lng,
-        accuracy
-    )
+            # Notification traveler
+            Notification.objects.create(
+                user=traveler.user,
+                title="⚠️ You left the allowed area",
+                message=f"You moved away from {schedule.activity_title}"
+            )
 
-    alerts = check_geofences_and_notify_users(
-        current_location=current_location,
-        traveler=traveler,
-        tour=active_join.tour
-    )
+            # Notification tour guide
+            if tour_guide:
+                Notification.objects.create(
+                    user=tour_guide.user,
+                    title="🚨 Traveler left geofence",
+                    message=f"{traveler.user.username} left {schedule.activity_title}"
+                )
 
-    for alert in alerts:
-        print("Notify traveler & tour guide")
+            results.append("exit")
 
-    return JsonResponse({"ok": True})
+        # 🟢 ENTER
+        if (
+            inside
+            and geofence.trigger_on_enter
+            and last_event
+            and last_event.event_type == "exit"
+        ):
+            GeofenceEvent.objects.create(
+                traveler=traveler,
+                tour_guide=tour_guide,
+                geofence=geofence,
+                event_type="enter"
+            )
 
+            results.append("enter")
+    print("POST DATA:", request.POST)
+    return JsonResponse({
+        "status": "ok",
+        "events": results
+    })

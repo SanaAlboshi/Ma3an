@@ -5,10 +5,12 @@ from django.db.models import Q
 from accounts.models import Agency, Traveler, Notification
 from backOffice.decorators import admin_only
 from agency.models import Subscription
+from django.views.decorators.http import require_POST
 
 from backOffice.decorators import admin_only
 
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 
 User = get_user_model()
@@ -188,7 +190,7 @@ def edit_subscription(request, sub_id):
 
 @login_required(login_url="/admin/login/")
 @admin_only
-@require_POST
+# @require_POST
 def renew_subscription(request, sub_id):
     sub = get_object_or_404(AgencySubscription, id=sub_id)
 

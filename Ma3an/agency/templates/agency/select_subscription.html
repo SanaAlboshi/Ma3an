@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold mb-4 text-center">Select Your Subscription Plan</h1>
+
+    <div class="mb-6 text-center">
+        <h2 class="text-xl font-semibold">{{ subscription.subscriptionType|capfirst }} Plan</h2>
+        <p class="text-gray-700 mt-1">Price: {{ subscription.price }} SAR</p>
+        <ul class="text-left mt-2 mb-4">
+            <li>Tours: {% if subscription.tours_limit %}{{ subscription.tours_limit }}{% else %}Unlimited{% endif %}</li>
+            <li>Supervisors: {% if subscription.supervisors_limit %}{{ subscription.supervisors_limit }}{% else %}Unlimited{% endif %}</li>
+            <li>Travelers: {% if subscription.travelers_limit %}{{ subscription.travelers_limit }}{% else %}Unlimited{% endif %}</li>
+        </ul>
+
+        <form method="post">
+            {% csrf_token %}
+            <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                Pay {{ subscription.price }} SAR (Sandbox)
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

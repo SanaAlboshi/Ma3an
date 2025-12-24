@@ -47,7 +47,7 @@ class TravelerPayment(models.Model):
 
 class Review(models.Model):
     traveler = models.ForeignKey(Traveler, on_delete=models.CASCADE)
-    tour = models.ForeignKey("agency.Tour", on_delete=models.CASCADE)
+    tour = models.ForeignKey("agency.Tour", on_delete=models.CASCADE, related_name="reviews")
     rating = models.IntegerField()
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

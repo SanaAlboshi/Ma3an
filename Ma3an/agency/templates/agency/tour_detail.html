@@ -1,81 +1,178 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-
-
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="{% static 'css/agency.css' %}">
 
-<div class="container mt-4 bg-light">
+<style>
+    /* تحسين تصميم الـ Summary Card */
+    .summary-card {
+        background: #ffffff;
+        border-radius: 25px;
+        padding: 30px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 20px;
+    }
 
-    <!-- Multi Step Header -->
-    <div class="mb-4 d-flex justify-content-between align-items-center text-center">
-        <!-- Step 1 -->
-        <div class="step completed">
-            <div class="circle">1</div>
-            <small>Add Tour</small>
-        </div>
-        <div class="line completed"></div>
+    .summary-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #000;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-        <!-- Step 2 -->
-        <div class="step completed">
-            <div class="circle">2</div>
-            <small>Schedule</small>
-        </div>
-        <div class="line completed"></div>
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px dashed #eee;
+    }
 
-        <!-- Step 3 -->
-        <div class="step active">
-            <div class="circle">3</div>
-            <small>Confirm</small>
-        </div>
-    </div>
+    .summary-item:last-of-type {
+        border-bottom: none;
+    }
 
-    <div class="card mb-4 p-4">
-        <h2>{{ tour.name }}</h2>
-        <p>{{ tour.description }}</p>
-        <p><strong>Country:</strong> {{ tour.country }} | <strong>City:</strong> {{ tour.city }}</p>
-        <p><strong>Travelers:</strong> {{ tour.travelers }} | <strong>Price:</strong> {{ tour.price }} SAR</p>
-        <p><strong>Start Date:</strong> {{ tour.start_date }} | <strong>End Date:</strong> {{ tour.end_date }}</p>
-        {% if tour.image %}
-            <img src="{{ tour.image.url }}" class="img-fluid rounded" alt="Tour Image">
-        {% else %}
-            <img src="{% static 'images/default-tour.jpg' %}" class="img-fluid rounded" alt="Default Tour Image">
-        {% endif %}
-    </div>
+    .summary-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
 
-    <h3>Schedule</h3>
-    {% if schedules %}
-        {% for schedule in schedules %}
-            <div class="card mb-2 p-2">
-                <strong>Day {{ schedule.day_number }}</strong><br>
-                {{ schedule.activity_title }} ({{ schedule.start_time }} - {{ schedule.end_time }})<br>
-                Location: {{ schedule.location_name }} {% if schedule.location_url %}(<a href="{{ schedule.location_url }}" target="_blank">link</a>){% endif %}<br>
-                Description: {{ schedule.description }}
+    .summary-value {
+        color: #000;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .price-tag {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .price-amount {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: #198754;
+        /* لون أخضر رسمي */
+    }
+
+    .price-currency {
+        font-size: 0.8rem;
+        color: #6c757d;
+        font-weight: 400;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="detail-card shadow-sm mb-4">
+                <div class="detail-image-wrapper">
+                    {% if tour.image %}
+                    <img src="{{ tour.image.url }}" class="img-main" alt="{{ tour.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200" class="img-main">
+                    {% endif %}
+                </div>
+
+                <div class="p-4">
+                    <h2 class="fw-bold mb-1">{{ tour.name }}</h2>
+                    <p class="text-muted mb-3"><i class="fas fa-building me-1"></i> Agency: {{ tour.agency.agency_name}}</p>
+
+                    {% if tour.tour_guide %}
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-user-tie me-1"></i>
+                        Tour Guide: {{ tour.tour_guide.user.first_name }} {{ tour.tour_guide.user.last_name }}
+                    </p>
+                    {% else %}
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-user-slash me-1"></i>
+                        Tour Guide: Not assigned yet
+                    </p>
+                    {% endif %}
+
+                    <div class="d-flex gap-3 mb-4 text-muted">
+                        <span><i class="fas fa-map-marker-alt text-primary me-1"></i> {{ tour.city }}, {{ tour.country
+                            }}</span>
+                        <span><i class="fas fa-users text-primary me-1"></i> {{ tour.travelers }} Travelers</span>
+                    </div>
+                    <h5 class="fw-bold">Description</h5>
+                    <p class="text-secondary">{{ tour.description }}</p>
+                </div>
             </div>
-        {% endfor %}
-    {% else %}
-        <p>No schedule added yet.</p>
-    {% endif %}
 
-  <div class="mt-4 d-flex gap-2">
-    <!-- زر العودة للداشبورد -->
-    <a href="{% url 'agency:dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+            <h4 class="fw-bold mb-4 mt-5"><i class="far fa-map me-2"></i>Tour Itinerary</h4>
 
-    <!-- زر تأكيد المعلومات (يحفظ البيانات) -->
-    <form action="{% url 'agency:confirm_tour' tour.id %}" method="post" class="mx-2">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-success">
-        Confirm
-    </button>
-</form>
+            <div class="modern-timeline">
+                {% regroup schedules by day_number as schedules_by_day %}
+                {% for day in schedules_by_day %}
+                <div class="timeline-day-header">
+                    <span class="day-label">Day {{ day.grouper }}</span>
+                </div>
+                {% for schedule in day.list %}
+                <div class="timeline-event">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content-card shadow-sm">
+                        <div class="event-time">
+                            <i class="far fa-clock me-1"></i> {{ schedule.start_time }} - {{ schedule.end_time }}
+                        </div>
+                        <div class="event-details">
+                            <h6 class="fw-bold text-dark mb-1">{{ schedule.activity_title }}</h6>
+                            <p class="text-muted small mb-2">{{ schedule.description }}</p>
+                            <div class="event-location">
+                                <i class="fas fa-map-marker-alt me-1"></i> {{ schedule.location_name }}
+                                {% if schedule.location_url %}
+                                <a href="{{ schedule.location_url }}" target="_blank" class="map-link">View Map</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
 
+        <div class="col-lg-4">
+            <div class="summary-card shadow-sm">
+                <div class="summary-title">
+                    <i class="fas fa-clipboard-list text-primary"></i> Review Summary
+                </div>
 
-    <!-- زر جميع التور -->
-    <a href="{% url 'agency:all_tours' %}" class="btn btn-secondary">All Tours</a>
-</div>
+                <div class="summary-item">
+                    <span class="summary-label"><i class="far fa-calendar-alt me-1"></i> Departure</span>
+                    <span class="summary-value">{{ tour.start_date }}</span>
+                </div>
 
+                <div class="summary-item">
+                    <span class="summary-label"><i class="fas fa-calendar-check me-1"></i> Return</span>
+                    <span class="summary-value">{{ tour.end_date }}</span>
+                </div>
 
+                <div class="summary-item">
+                    <span class="summary-label"><i class="fas fa-map-pin me-1"></i> Destination</span>
+                    <span class="summary-value">{{ tour.city }}</span>
+                </div>
 
+                <div class="price-tag">
+                    <span class="summary-label d-block mb-1">Total Package Price</span>
+                    <span class="price-amount">{{ tour.price }} <small class="price-currency">SAR</small></span>
+                    <span class="text-muted small">Per Person</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

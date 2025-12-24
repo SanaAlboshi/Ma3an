@@ -1,0 +1,210 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'tourGuide/sidebar.html' %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+
+<div class="dashboard-content" style="margin-left: 280px;">
+<div class="container py-5">
+
+    <!-- Page Title -->
+    <div class="page-title-section text-center mb-5">
+        <h1 class="display-5 fw-bold" style="color: #1a202c;">My Tours</h1>
+        <p class="text-muted">Manage and monitor all your assigned tours</p>
+    </div>
+
+    <!-- Tours Grid -->
+    <div class="tours-grid">
+        {% for tour in tours %}
+        <div class="tour-card">
+
+            <!-- Image -->
+            <div class="tour-image">
+                {% if tour.image %}
+                    <img src="{{ tour.image.url }}" alt="{{ tour.name }}">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" alt="{{ tour.name }}">
+                {% endif %}
+
+                <!-- Status Badge -->
+                {% if tour.end_date < today %}
+                    <span class="badge bg-success position-absolute top-0 end-0 m-2">Completed</span>
+                {% elif tour.start_date > today %}
+                    <span class="badge bg-info position-absolute top-0 end-0 m-2">Upcoming</span>
+                {% else %}
+                    <span class="badge bg-warning position-absolute top-0 end-0 m-2">Active</span>
+                {% endif %}
+            </div>
+
+            <!-- Content -->
+            <div class="tour-content">
+                <h3 class="tour-title">{{ tour.name }}</h3>
+
+                <div class="tour-meta">
+                    <div class="tour-meta-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ tour.city }}, {{ tour.country }}</span>
+                    </div>
+
+                    <div class="tour-meta-item">
+                        <i class="far fa-clock"></i>
+                        <span>{{ tour.days }} Days</span>
+                    </div>
+                </div>
+
+                <div class="tour-meta">
+                    <div class="tour-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>{{ tour.travelers }} Travelers</span>
+                    </div>
+
+                    <div class="tour-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>{{ tour.start_date|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+
+                <!-- Action -->
+                <div class="action-buttons">
+                    <a href="{% url 'tourGuide:tour_details' tour.id %}" class="btn-book w-100">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% empty %}
+        <div class="no-tours">
+            <i class="fas fa-route fa-5x text-muted mb-3"></i>
+            <h4>No tours assigned yet</h4>
+            <p class="text-muted">Once tours are assigned, they will appear here.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+</div>
+
+<style>
+
+    .tour-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        padding: 20px 0;
+    }
+
+    .outer-box {
+        background: #ffffff;
+        border-radius: 25px;
+        padding: 8px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        margin: auto;
+        width: 100%;
+        max-width: 350px; /* ضمان عدم كبر الصندوق بشكل مبالغ فيه */
+    }
+
+    .outer-box:hover { transform: translateY(-8px); }
+
+    .inner-image-box {
+        position: relative;
+        width: 100%;
+        height: 450px; /* ارتفاع البطاقة */
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .tour-img-full {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block;
+    }
+
+    .inner-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%);
+        z-index: 2;
+    }
+
+    .badge-price {
+        position: absolute;
+        top: 15px; left: 15px;
+        background: white;
+        color: #000;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        z-index: 3;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .badge-duration {
+        position: absolute;
+        top: 15px; right: 15px;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        z-index: 3;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .inner-content {
+        position: absolute;
+        bottom: 0; left: 0; width: 100%;
+        padding: 20px;
+        z-index: 4;
+        color: white;
+    }
+
+    .t-name { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+
+    .btn-main-white {
+        background: #ffffff !important;
+        color: #000 !important;
+        border: none !important;
+        border-radius: 15px !important;
+        padding: 12px !important;
+        width: 100%;
+        font-weight: 700;
+        text-decoration: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+    .btn-main-white:hover { background: #f0f0f0 !important; transform: scale(1.02); }
+
+    .admin-tools {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .btn-admin-tool {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.2) !important;
+        backdrop-filter: blur(5px);
+        color: #fff !important;
+        border-radius: 10px !important;
+        padding: 8px !important;
+        font-size: 0.75rem !important;
+        text-align: center;
+        text-decoration: none !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+    }
+
+</style>
+
+{% endblock %}

@@ -38,11 +38,11 @@
                 <h4 class="mb-4">Create New Tour</h4>
 
                 {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
                 {% endif %}
 
                 <!-- FORM GET لتواريخ الرحلة -->
@@ -50,19 +50,13 @@
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Start Date</label>
-                            <input type="date"
-                                   name="start_date"
-                                   class="form-control"
-                                   value="{{ start_date|default:'' }}"
-                                   onchange="this.form.submit()">
+                            <input type="date" name="start_date" class="form-control"
+                                value="{{ start_date|default:'' }}" onchange="this.form.submit()">
                         </div>
                         <div class="col">
                             <label class="form-label">End Date</label>
-                            <input type="date"
-                                   name="end_date"
-                                   class="form-control"
-                                   value="{{ end_date|default:'' }}"
-                                   onchange="this.form.submit()">
+                            <input type="date" name="end_date" class="form-control" value="{{ end_date|default:'' }}"
+                                onchange="this.form.submit()">
                         </div>
                     </div>
                 </form>
@@ -110,6 +104,17 @@
                         <label class="form-label">Tour Image</label>
                         <input type="file" name="image" class="form-control">
                     </div>
+
+                    <!-- for adding tour guide -->
+                    <select name="tour_guide" class="form-select mb-4">
+                        <option value="">Select Tour Guide</option>
+                        {% for guide in tour_guides %}
+                        <option value="{{ guide.id }}">
+                            {{ guide.user.first_name }} {{ guide.user.last_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
 
                     <button type="submit" class="btn btn-success w-100">Next ➜</button>
                 </form>

@@ -1,0 +1,72 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+
+<div class="container py-5">
+
+    <div class="page-title-section text-center mb-5">
+        <h1 class="display-4 fw-bold" style="color: #1a202c;">My Tours</h1>
+        <p class="text-muted">Manage all tours you have created</p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="mb-4 text-center">
+        <a href="?status=upcoming" class="btn btn-outline-primary {% if status == 'upcoming' %}active{% endif %} mx-1">Upcoming Tours</a>
+        <a href="?status=active" class="btn btn-outline-primary {% if status == 'active' %}active{% endif %} mx-1">Active Tours</a>
+        <a href="?status=past" class="btn btn-outline-primary {% if status == 'past' %}active{% endif %} mx-1">Past Tours</a>
+    </div>
+
+    <!-- Tours Grid -->
+    <div class="tours-grid">
+        {% if tours %}
+            {% for item in tours %}
+                <div class="tour-card">
+                    <div class="tour-image">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" alt="{{ item.name }}">
+                        {% endif %}
+                        <div class="rating">
+                            <span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                            <span class="star">★</span><span class="star">★</span>
+                        </div>
+                    </div>
+                    <div class="tour-content">
+                        <h3 class="tour-title">{{ item.name }}</h3>
+                        <div class="tour-meta">
+                            <div class="tour-meta-item"><i class="fas fa-map-marker-alt"></i><span>{{ item.city }}, {{ item.country }}</span></div>
+                            <div class="tour-meta-item"><i class="far fa-clock"></i><span>{{ item.duration }} day{% if item.duration > 1 %}s{% endif %}</span></div>
+                            <div class="tour-meta-item"><i class="fas fa-calendar-alt"></i><span>{{ item.start_date|date:"M d, Y" }} - {{ item.end_date|date:"M d, Y" }}</span></div>
+                        </div>
+                        <div class="price-section">
+                            <div class="tour-price">{{ item.price }} SAR<span class="person-price">/ person</span></div>
+                        </div>
+                        <div class="action-buttons">
+                            <a href="{% url 'agency:tour_detail' item.id %}" class="btn-book">Details</a>
+                            <a href="{% url 'agency:edit_tour' item.id %}" class="btn-secondary-action">Edit</a>
+                            <form action="{% url 'agency:delete_tour' item.id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-tours text-center">
+                <i class="fas fa-map-marked-alt fa-5x text-muted mb-3"></i>
+                <h4>No tours available yet</h4>
+                <p class="text-muted">Try creating a new tour.</p>
+                <a href="{% url 'agency:add_tour' %}" class="btn btn-primary rounded-pill px-4 mt-2">+ Create Your First Tour</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

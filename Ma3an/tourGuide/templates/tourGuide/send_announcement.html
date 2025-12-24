@@ -1,0 +1,20 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'tourGuide/sidebar.html' %}
+
+<div class="container my-5">
+    <h3>Send Announcement for "{{ tour.name }}"</h3>
+    <p class="text-muted mb-4">All registered travelers will receive this announcement via email.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Send Announcement</button>
+    </form>
+
+    <a href="{% url 'tourguide:dashboard' %}" class="btn btn-secondary mt-3">&larr; Back to Dashboard</a>
+</div>
+{% endblock %}

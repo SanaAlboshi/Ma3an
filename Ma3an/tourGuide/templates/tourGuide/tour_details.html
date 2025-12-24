@@ -1,0 +1,65 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header text-white bg-gradient-primary">
+            <h2>{{ tour.name }}</h2>
+            <small>TOUR-{{ tour.id }}</small>
+            {% if tour.end_date < today %}
+                <span class="badge bg-success float-end">Completed</span>
+            {% elif tour.start_date > today %}
+                <span class="badge bg-info float-end">Upcoming</span>
+            {% else %}
+                <span class="badge bg-warning float-end">Active</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item"><a class="nav-link active" href="#">Overview</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Schedule</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Travelers</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Groups</a></li>
+    </ul>
+
+    <!-- Travelers Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="mb-3">Travelers List ({{ travelers.count }})</h5>
+            <input type="text" class="form-control mb-3" placeholder="Search travelers...">
+
+            <div class="list-group">
+                {% for t in travelers %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ t.user.first_name }} {{ t.user.last_name }}</strong><br>
+                        <small><i class="bi bi-telephone"></i> {{ t.phone_number }}</small> |
+                        <small><i class="bi bi-envelope"></i> {{ t.user.email }}</small>
+                    </div>
+                    <div>
+                        <span class="badge bg-primary">Group A</span>
+                        <span class="badge bg-success">Present</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(90deg, #4f46e5, #3b82f6);
+    color: white;
+}
+.list-group-item {
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+</style>
+
+{% endblock %}

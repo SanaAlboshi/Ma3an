@@ -112,363 +112,385 @@ body {
 
 
 
-/* ======= Reset ======= */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+
+
+
+/* ======= New Modern Tour Card ======= */
+.tours-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
 }
 
-body {
-    background-color: #f5f1eb;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    min-height: 100vh;
-    padding: 50px 0 60px 0;
-}
-
-/* ======= Page Title ======= */
-.page-title-section {
-    text-align: center;
-    margin-bottom: 45px;
-}
-
-.page-title-section h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #1a202c;
-    margin-bottom: 12px;
-    letter-spacing: -1px;
-}
-
-.page-title-section p {
-    color: #718096;
-    font-size: 1.1rem;
-    font-weight: 400;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-/* ======= Filter Section ======= */
-.filter-section {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    margin-bottom: 35px;
-}
-
-.filter-controls {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.filter-item {
-    flex: 1;
-    min-width: 200px;
-}
-
-.filter-item label {
-    font-size: 0.85rem;
-    color: #4a5568;
-    font-weight: 600;
-    margin-bottom: 6px;
-    display: block;
-}
-
-.filter-item select,
-.filter-item input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    color: #2d3748;
-    transition: all 0.3s;
-}
-
-.filter-item select:focus,
-.filter-item input:focus {
-    outline: none;
-    border-color: #48bb78;
-    box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
-}
-
-/* ======= Tour Card ======= */
-.tour-card {
-    background-color: #fff;
-    border-radius: 16px;
-    padding: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    transition: all 0.3s ease;
-}
-
-.tour-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-}
-
-.tour-image {
-    width: 100%;
-    height: 200px;
-    border-radius: 12px;
-    overflow: hidden;
+.tour-card-wrapper {
     position: relative;
-    margin-bottom: 14px;
 }
 
-.tour-image img {
+.tour-card-new {
+    background: #fff;
+    border-radius: 30px; /* زوايا منحنية جداً مثل الصورة */
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+}
+
+.card-image-container {
+    height: 420px; /* ارتفاع الكارد */
+    position: relative;
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+.card-image-container img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
 }
 
-.tour-card:hover .tour-image img {
-    transform: scale(1.05);
+/* Price Badge */
+.price-badge {
+    position: absolute;
+    top: 20px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
-.tour-content {
-    padding: 0 6px;
+.per-night {
+    font-weight: 300;
+    font-size: 0.8rem;
+    margin-left: 2px;
 }
 
-.tour-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: #1a202c;
-    line-height: 1.4;
-}
-
-.tour-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-bottom: 12px;
-}
-
-.tour-meta-item {
-    color: #a0aec0;
-    font-size: 0.85rem;
+/* Favorite Icon */
+.fav-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
 }
 
-.tour-meta-item i {
-    font-size: 0.8rem;
-    width: 14px;
-    color: #cbd5e0;
-}
-
-.price-section {
-    margin-bottom: 14px;
-    padding-top: 10px;
-    border-top: 1px solid #f0f0f0;
-}
-
-.tour-price {
-    font-size: 1.1rem;
-    color: #1a202c;
-    font-weight: 700;
-}
-
-.person-price {
-    color: #a0aec0;
-    font-size: 0.8rem;
-    font-weight: 400;
-    margin-left: 4px;
-}
-
-.action-buttons {
+/* Image Dots */
+.image-dots {
+    position: absolute;
+    bottom: 160px; /* فوق منطقة المعلومات */
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    gap: 8px;
+    gap: 5px;
+    background: rgba(0,0,0,0.3);
+    padding: 5px 10px;
+    border-radius: 15px;
 }
 
-.btn-book {
-    flex: 2;
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-weight: 700;
-    font-size: 0.88rem;
-    transition: all 0.3s;
-    text-decoration: none;
-    text-align: center;
-    display: inline-block;
-}
-
-.btn-book:hover {
-    background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(56,161,105,0.35);
-    color: white;
-}
-
-.btn-secondary-action {
-    flex: 1;
-    background-color: #fff;
-    border: 1.5px solid #e2e8f0;
-    color: #718096;
-    border-radius: 10px;
-    padding: 12px;
-    font-weight: 600;
-    font-size: 0.82rem;
-    transition: all 0.3s;
-    text-decoration: none;
-    text-align: center;
-    display: inline-block;
-}
-
-.btn-secondary-action:hover {
-    background-color: #f7fafc;
-    border-color: #cbd5e0;
-    color: #4a5568;
-}
-
-/* ======= No Tours ======= */
-.no-tours {
-    text-align: center;
-    padding: 80px 30px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-}
-
-.no-tours i {
-    color: #e2e8f0;
-    margin-bottom: 24px;
-}
-
-.no-tours h4 {
-    color: #2d3748;
-    margin-bottom: 10px;
-    font-weight: 700;
-    font-size: 1.4rem;
-}
-
-.no-tours p {
-    color: #a0aec0;
-    font-size: 1rem;
-    margin-bottom: 20px;
-}
-
-.no-tours .btn-primary {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-    border: none;
-    padding: 12px 30px;
-    border-radius: 10px;
-    font-weight: 600;
-    box-shadow: 0 3px 10px rgba(56,161,105,0.25);
-}
-
-/* ======= Multi Step Header ======= */
-.step {
-    flex: 1;
-    text-align: center;
-    position: relative;
-}
-
-.circle {
-    width: 38px;
-    height: 38px;
-    line-height: 38px;
+.dot {
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,0.5);
     border-radius: 50%;
-    background: #dee2e6;
-    color: #6c757d;
-    margin: 0 auto 6px;
-    font-weight: bold;
 }
 
-.step.active .circle,
-.step.completed .circle {
-    background: #198754;
-    color: #fff;
-}
-
-.line {
-    flex: 1;
-    height: 4px;
-    background: #dee2e6;
-    margin: 0 10px;
-}
-
-.line.completed {
-    background: #198754;
-}
-
-/* ======= General Card Styling ======= */
-.card {
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-/* ======= Schedule Styling ======= */
-.day {
-    border:1px solid #ccc;
-    padding:15px;
-    margin-bottom:20px;
-    border-radius:6px;
+.dot.active {
     background: #fff;
+    width: 15px;
+    border-radius: 10px;
 }
 
-.activity {
-    border:1px dashed #aaa;
-    padding:10px;
-    margin-bottom:10px;
-    position:relative;
-    border-radius:6px;
-    background: #f8f9fa;
+/* Info Overlay Area */
+.card-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 25px 20px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.9)); /* تدرج لاسوداد النص */
+    color: white;
 }
 
-.remove-activity {
-    color:red;
-    cursor:pointer;
-    position:absolute;
-    top:5px;
-    right:10px;
-    font-size:14px;
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
 }
 
-/* ======= Buttons ======= */
-.btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
 }
 
-.btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
+.rating {
+    font-size: 0.9rem;
 }
 
-.btn-success {
-    background-color: #198754;
-    border-color: #198754;
+.rating i {
+    color: #ffb400;
 }
 
-.btn-success:hover {
-    background-color: #157347;
-    border-color: #146c43;
+.location {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-bottom: 15px;
 }
 
-.btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
+.specs {
+    display: flex;
+    gap: 12px;
+    font-size: 0.75rem;
+    margin-bottom: 20px;
+    opacity: 0.8;
 }
 
-.btn-secondary:hover {
-    background-color: #5c636a;
-    border-color: #565e64;
+/* Reserve Button */
+.btn-reserve {
+    display: block;
+    width: 100%;
+    background: #fff;
+    color: #000;
+    text-align: center;
+    padding: 12px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.3s;
 }
+
+.btn-reserve:hover {
+    background: #f0f0f0;
+    transform: scale(1.02);
+}
+
+/* Admin Actions (Edit/Delete) */
+.admin-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-edit-small, .btn-delete-small {
+    font-size: 0.75rem;
+    padding: 5px 15px;
+    border-radius: 15px;
+    text-decoration: none;
+    background: #eee;
+    color: #555;
+}
+
+.btn-delete-small:hover { background: #ff4d4d; color: white; }
+
+
+
+
+
+
+
+
+
+/* ======= Multi Step Header (الستيبار) ======= */
+.stepper-wrapper { display: flex; justify-content: space-between; position: relative; margin-bottom: 40px; }
+.stepper-item { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+.stepper-item::before { content: ""; position: absolute; width: 100%; height: 2px; background: #ddd; top: 18px; left: -50%; z-index: -1; }
+.stepper-item:first-child::before { display: none; }
+.step-counter { width: 36px; height: 36px; border-radius: 50%; background: #fff; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 8px; }
+
+/* ألوان الحالات */
+.stepper-item.active .step-counter { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+.stepper-item.completed .step-counter { background: #198754; color: #fff; border-color: #198754; }
+.stepper-item.completed::before { background: #198754; }
+
+/* ======= Detail Card (كارد تفاصيل الرحلة) ======= */
+.detail-card { background: white; border-radius: 20px; overflow: hidden; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.detail-image-wrapper { position: relative; height: 350px; }
+.img-main { width: 100%; height: 100%; object-fit: cover; }
+.price-tag-detail { position: absolute; bottom: 20px; right: 20px; background: #198754; color: white; padding: 10px 20px; border-radius: 30px; font-weight: bold; font-size: 1.2rem; }
+
+/* ======= Modern Timeline (تصميم الخط الطويل والأنشطة) ======= */
+.modern-timeline { position: relative; padding: 20px 0; }
+
+/* عنوان اليوم (Day 1, Day 2) */
+.timeline-day-header { margin: 30px 0 20px 0; position: relative; z-index: 2; }
+.day-label { background: #0d6efd; color: white; padding: 6px 20px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2); }
+
+/* عنصر النشاط الواحد */
+.timeline-event { position: relative; padding-left: 45px; padding-bottom: 25px; }
+
+/* الخط الرأسي الطويل */
+.timeline-line { position: absolute; left: 17px; top: 0; bottom: 0; width: 2px; background: #e0e0e0; }
+
+/* النقطة التي تربط النشاط بالخط */
+.timeline-dot { position: absolute; left: 11px; top: 15px; width: 14px; height: 14px; background: white; border: 3px solid #0d6efd; border-radius: 50%; z-index: 1; }
+
+/* كارد النشاط */
+.timeline-content-card { background: white; border-radius: 15px; padding: 15px 20px; border: 1px solid #f0f0f0; transition: all 0.3s ease; }
+.timeline-content-card:hover { transform: translateX(5px); border-color: #0d6efd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
 /* ======= Responsive ======= */
 @media (max-width:768px) {
     .page-title-section h1 { font-size: 1.8rem; }
     .filter-controls { flex-direction: column; }
     .filter-item { width: 100%; }
+}
+
+/* Pay btn style */
+.pay-link {
+    text-decoration: none;
+}
+
+.pay-btn {
+    background: linear-gradient(135deg, #2E7D32, #14b85b);
+    color: #fff;
+    border: none;
+    padding: 12px 26px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(20, 184, 36, 0.6);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Pay Hover */
+.pay-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(20, 184, 36, 0.6);
+}
+
+/* Pay Click */
+.pay-btn:active {
+    transform: scale(0.96);
+}
+
+/* Light shine effect */
+.pay-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 120%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+    );
+    transition: all 0.6s ease;
+}
+
+.pay-btn:hover::after {
+    left: 120%;
+}
+
+/* pagination */
+/* ============================= */
+/* Pagination Fix (Bootstrap Safe) */
+/* ============================= */
+
+.pagination-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin: 50px 0 30px !important;
+    flex-wrap: wrap !important;
+}
+
+.pagination-wrapper .page-btn {
+    all: unset;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 14px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 999px !important;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #198754 !important;
+    border: 2px solid #198754 !important;
+    background-color: #ffffff !important;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 18px rgba(15, 118, 110, 0.15);
+    text-decoration: none !important;
+}
+
+.pagination-wrapper .page-btn:hover {
+    background-color: #198754 !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+}
+
+.pagination-wrapper .page-btn.active {
+    background-color: #198754 !important;
+    color: #ffffff !important;
+    pointer-events: none;
+}
+
+
+/* Arrows styling */
+.page-btn:first-child,
+.page-btn:last-child {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* Disabled look (optional if you add later) */
+.page-btn.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+/* Mobile friendly */
+@media (max-width: 480px) {
+    .pagination-wrapper {
+        gap: 6px;
+    }
+
+    .page-btn {
+        min-width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+}
+
+.rating {
+    color: #ddd;
+    font-size: 1rem;
+}
+.rating .filled {
+    color: #f5c518;
+}
+.reviews-count {
+    color: #777;
+    font-size: 0.85rem;
+    margin-left: 4px;
+}
+.star {
+    color: #ddd;
+}
+.star.filled {
+    color: #f5c518;
 }

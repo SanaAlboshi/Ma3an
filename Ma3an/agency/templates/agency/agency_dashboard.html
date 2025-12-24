@@ -1,82 +1,202 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma3an - Agency Dashboard</title>
-</head>
-<body>
-    <!-- Sidebar -->
-    <div>
-        <h2>Ma3an</h2>
-        <p>Travel Agency</p>
+{% extends 'main/base.html' %}
+{% load static %}
 
-        <ul>
-            <li><button>Dashboard</button></li>
-            <!-- Recent Tours -->
-            <div>
-                <h3>Tours</h3>
-                <a href="{% url 'agency:all_tours' %}"><button>All Tours →</button></a>
-            </div>
-            <li>
-                <a href="{% url 'tourGuide:all_tourguides' %}"><button>Tour Guides</button></a>
-            </li>
-            <li><button>Travelers</button></li>
-            <li><button>Reports</button></li>
-            <li><button>Notifications</button></li>
-        </ul>
+{% block extra_css %}
+<style>
+    :root { 
+        --sidebar-bg: #ffffff; 
+        --main-bg: #f8f9fa; 
+        --accent-color: #0d6efd; 
+    }
+    
+    body { background-color: var(--main-bg); font-family: 'Inter', -apple-system, sans-serif; }
+
+    /* تنسيق السايدبار ليكون ثابتاً عند التنقل */
+    .sidebar { 
+        width: 280px; 
+        height: calc(100vh - 76px); 
+        position: fixed; 
+        left: 0; 
+        top: 76px; 
+        background: var(--sidebar-bg); 
+        border-right: 1px solid #eee; 
+        padding: 2rem 1.5rem; 
+        z-index: 100; 
+        overflow-y: auto; 
+    }
+
+    .nav-link-custom { 
+        display: flex; 
+        align-items: center; 
+        padding: 0.8rem 1rem; 
+        color: #555; 
+        text-decoration: none; 
+        border-radius: 10px; 
+        margin-bottom: 0.5rem; 
+        transition: 0.3s; 
+    }
+
+    .nav-link-custom:hover, .nav-link-custom.active { 
+        background: rgba(13, 110, 253, 0.1); 
+        color: var(--accent-color); 
+        font-weight: 600;
+    }
+
+    .dashboard-content { 
+        margin-left: 280px; 
+        padding: 2rem; 
+        min-height: calc(100vh - 76px);
+    }
+
+    .stat-card { border: none; border-radius: 15px; transition: transform 0.3s; background: white; }
+    .stat-card:hover { transform: translateY(-5px); }
+    
+    .table-card { border-radius: 20px; border: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<aside class="sidebar d-none d-lg-block">
+    <div class="mb-4 text-center">
+        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+            <i class="bi bi-building fs-3"></i>
+        </div>
+        <h5 class="fw-bold mb-0">Ma3an</h5>
+        <p class="text-muted small">Travel Agency Dashboard</p>
     </div>
 
-    <!-- Main Content -->
-    <div>
-        <!-- Top Header -->
-        <div>
+    <nav>
+        <a href="{% url 'agency:dashboard' %}" class="nav-link-custom active">
+            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        </a>
+        <a href="{% url 'agency:my_tours' %}" class="nav-link-custom">
+            <i class="bi bi-suitcase-lg me-2"></i> My Tours
+        </a>
+        
+        <hr class="text-muted">
+        <h6 class="text-uppercase small fw-bold text-muted mb-3">Account</h6>
+        <a href="{% url 'agency:subscription_view' %}" class="nav-link-custom">
+            <i class="bi bi-credit-card me-2"></i> Subscription 
+            {% if agency.current_subscription %}<span class="badge bg-success ms-auto" style="font-size: 0.6rem;">Active</span>{% endif %}
+        </a>
+
+        <hr class="text-muted">
+        <h6 class="text-uppercase small fw-bold text-muted mb-3">Team Management</h6>
+        
+        <a href="{% url 'accounts:create_tourguide_view' %}" class="btn btn-primary btn-sm w-100 mb-2 shadow-sm">
+            <i class="bi bi-person-plus me-1"></i> Add New TourGuide
+        </a>
+
+        <a href="/tourGuide/all/guides/" class="btn btn-outline-secondary btn-sm w-100 mb-3">
+            <i class="bi bi-people me-1"></i> View All My Guides
+        </a>
+
+    </nav>
+</aside>
+
+<main class="dashboard-content">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <span>Agency Manager</span>
+                <h3 class="fw-bold">Welcome Back, {{ request.user.username }}</h3>
+                <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill small">Agency Mode</span>
+            </div>
+            <a href="{% url 'agency:add_tour' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="bi bi-plus-circle me-1"></i> Add New Tour
+            </a>
+        </div>
+
+        <div class="row g-3 mb-5">
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-primary border-4">
+                    <div class="text-primary mb-2"><i class="bi bi-calendar-event fs-2"></i></div>
+                    <h4 class="fw-bold mb-0">{{ upcoming_tours_count }}</h4>
+                    <p class="text-muted small mb-0">Upcoming Tours</p>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-success border-4">
+                    <div class="text-success mb-2"><i class="bi bi-play-circle fs-2"></i></div>
+                    <h4 class="fw-bold mb-0">{{ active_tours_count }}</h4>
+                    <p class="text-muted small mb-0">Active Tours</p>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-secondary border-4">
+                    <div class="text-secondary mb-2"><i class="bi bi-clock-history fs-2"></i></div>
+                    <h4 class="fw-bold mb-0">{{ past_tours_count }}</h4>
+                    <p class="text-muted small mb-0">Past Tours</p>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-warning border-4">
+                    <div class="text-warning mb-2"><i class="bi bi-people fs-2"></i></div>
+                    <h4 class="fw-bold mb-0">{{ total_travelers|default:"0" }}</h4>
+                    <p class="text-muted small mb-0">Total Travelers</p>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-dark border-4">
+                    <div class="text-dark mb-2"><i class="bi bi-person-badge fs-2"></i></div>
+                    <h4 class="fw-bold mb-0">{{ tour_guides_count }}</h4>
+                    <p class="text-muted small mb-0">Total TourGuides</p>
+                </div>
             </div>
         </div>
 
-        <!-- Quick Add Buttons -->
-        <div>
-            <h2>Organize Your Upcoming Trips</h2>
+        <div class="card table-card border-0 shadow-sm p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h5 class="fw-bold mb-0">Active Tours In Progress</h5>
+                    <p class="text-muted small mb-0">Currently running tours and their details</p>
+                </div>
+                <a href="{% url 'agency:my_tours' %}" class="btn btn-sm btn-outline-secondary">View All History</a>
+            </div>
             
-            <a href="{% url 'agency:add_tour' %}"><button>+ Add Tour</button></a>
-            <a href="{% url 'accounts:create_tourguide_view' %}"><button>+ Add TourGuides</button></a>
-        </div>
-
-        <!-- Stats Cards -->
-        <div>
-            <h2>Statistics</h2>
-            <ul>
-                <li><strong>Upcoming Tours:</strong> </li>
-                <li><strong>Active Tours:</strong> </li>
-                <li><strong>TourGuides:</strong> </li>
-                <li><strong>Travelers:</strong></li>
-            </ul>
-        </div>
-
-        <!-- Monthly Sales Chart -->
-        <div>
-            <h2>Monthly Sales</h2>
-            <canvas id="salesChart" style="max-width: 600px;"></canvas>
-        </div>
-
-        <!-- Recent Tours -->
-        <div>
-            <h3>Tours</h3>
-            <a href="{% url 'agency:all_tours' %}"><button>View All →</button></a>
-        </div>
-
-        <div>
-            <h3>Tour Guide Group</h3>
-            <a href="{% url 'tourGuide:all_tourguides' %}"><button>View All →</button></a>
-        </div>
-
-        <!-- Recent Alerts -->
-        <div>
-            <h3>Notifications</h3>
-            <button>View All →</button>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tour Name</th>
+                            <th>Location</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Travelers</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tour in tours %}
+                            {% if tour.start_date <= today and tour.end_date >= today %}
+                            <tr>
+                                <td class="fw-bold">{{ tour.name }}</td>
+                                <td><i class="bi bi-geo-alt text-primary me-1"></i> {{ tour.name }}</td>
+                                <td>{{ tour.start_date|date:"M. d, Y" }}</td>
+                                <td>{{ tour.end_date|date:"M. d, Y" }}</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-people-fill me-1"></i> {{ tour.travelers.count }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill small">
+                                        <i class="bi bi-record-fill me-1"></i> Active
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-info-circle d-block fs-2 mb-2"></i>
+                                    No active tours at the moment.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</body>
-</html>
+</main>
+{% endblock %}
