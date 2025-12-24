@@ -612,3 +612,94 @@ footer a:hover {
 .pay-btn:hover::after {
     left: 120%;
 }
+
+/* pagination */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 50px 0 30px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f766e;
+    border: 1.5px solid #0f766e;
+    background-color: #ffffff;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 18px rgba(15, 118, 110, 0.15);
+}
+
+/* Hover */
+.page-btn:hover {
+    background-color: #0f766e;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(15, 118, 110, 0.35);
+}
+
+/* Active page */
+.page-btn.active {
+    background-color: #0f766e;
+    color: #ffffff;
+    pointer-events: none;
+    box-shadow: 0 10px 28px rgba(15, 118, 110, 0.45);
+}
+
+/* Arrows styling */
+.page-btn:first-child,
+.page-btn:last-child {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* Disabled look (optional if you add later) */
+.page-btn.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+/* Mobile friendly */
+@media (max-width: 480px) {
+    .pagination-wrapper {
+        gap: 6px;
+    }
+
+    .page-btn {
+        min-width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+}
+
+.details-btn {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2E7D32, #14b85b);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.details-btn:hover {
+    background: linear-gradient(135deg, #2E7D32, #14b85b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(20, 184, 36, 0.6);
+    color: #fff;
+}

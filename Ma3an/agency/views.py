@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Avg, Count, IntegerField
+from django.db.models.functions import Cast, Round
+from django.core.paginator import Paginator
+from decimal import Decimal
 from .models import Tour, TourSchedule
 from datetime import datetime
 import requests
@@ -331,7 +334,17 @@ def add_tour_view(request):
 
 
 def all_tours_view(request):
-    tours = Tour.objects.all()
+    tours = (
+        Tour.objects
+        .annotate(
+            avg_rating_raw=Avg("reviews__rating"),
+        )
+        .annotate(
+            avg_rating=Cast(Round("avg_rating_raw"), IntegerField()),
+            reviews_count=Count("reviews")
+        )
+        .order_by("-avg_rating", "-reviews_count", "-id")
+    )
 
     # ===== Search (by tour name + by agency name) =====
     query = request.GET.get("q", "").strip()
@@ -366,6 +379,11 @@ def all_tours_view(request):
     elif price_range == '5000+':
         tours = tours.filter(price__gte=Decimal("5000"))
 
+     # ===== Pagination =====
+    paginator = Paginator(tours, 6)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     # ===== إعداد قائمة المدن =====
     cities = (
         Tour.objects
@@ -385,7 +403,7 @@ def all_tours_view(request):
 
 
     return render(request, 'agency/all_tours.html', {
-        'tours': tours_with_duration,
+        'page_obj': page_obj,
         'cities': cities,  # قائمة المدن للفلتر
         'selected_destination': destination,
         'selected_duration': duration,
@@ -480,6 +498,8 @@ def add_schedule_view(request, tour_id):
                 locations = request.POST.getlist(f"day_{day}_location_name[]")
                 urls = request.POST.getlist(f"day_{day}_location_url[]")
                 descriptions = request.POST.getlist(f"day_{day}_description[]")
+                latitudes = request.POST.getlist(f"day_{day}_latitude[]")
+                longitudes = request.POST.getlist(f"day_{day}_longitude[]")
 
                 for i in range(len(titles)):
                     TourSchedule.objects.create(
@@ -491,6 +511,8 @@ def add_schedule_view(request, tour_id):
                         location_name=locations[i],
                         location_url=urls[i],
                         description=descriptions[i],
+                        latitude=latitudes[i],
+                        longitude=longitudes[i],
                     )
 
             messages.success(request, "✅ Schedule saved successfully!")

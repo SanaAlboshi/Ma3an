@@ -1,31 +1,213 @@
-<div class="dashboard">
-  <aside class="sidebar">
-    <ul>
-      <li><a href="{% url 'traveler:traveler_dashboard_view' %}">Dashboard</a></li>
-      <li><a href="{% url 'traveler:tours_view' %}">All Tours</a></li>
-      <li><a href="#">My Tours</a></li>
-      <li><a href="#">Profile</a></li>
-    </ul>
-  </aside>
+{% extends "main/base.html" %}
+{% load static %}
 
-  <main class="content">
-    {% block content %}
-    <section class="notifications">
-      <h3>Notifications</h3>
+{% block content %}
+<style>
+    .rating-stars {
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: #ddd;
+    }
+
+    .rating-stars .star.active {
+        color: #f5c518;
+    }
     
-      {% for n in notifications %}
-        <div class="notification {% if not n.is_read %}unread{% endif %}">
-          <p>{{ n.message }}</p>
-          <small>{{ n.created_at|date:"Y-m-d H:i" }}</small>
+    .details-btn {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2E7D32, #14b85b);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.details-btn:hover {
+    background: linear-gradient(135deg, #2E7D32, #14b85b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(20, 184, 36, 0.6);
+    color: #fff;
+}
+</style>
+
+<div class="container py-4">
+
+    <h2 class="fw-bold mb-4">Traveler Dashboard</h2>
+
+    <!-- 🔔 Notifications -->
+    <div class="mb-4">
+        <h5>🔔 Notifications</h5>
+
+        {% for n in notifications %}
+        <div class="alert {% if n.is_read %}alert-secondary{% else %}alert-warning{% endif %}">
+            {{ n.message }}
+            <small class="d-block text-muted">
+                {{ n.created_at|timesince }} ago
+            </small>
+            {% if not n.is_read %}
+            <a href="{% url 'accounts:notification_read' n.id %}" class="small">
+                Mark as read
+            </a>
+            {% endif %}
         </div>
-      <a href="{% url 'accounts:mark_notification_read' n.id %}">
-        Mark as read
-      </a>
-      {% empty %}
-        <p>No notifications</p>
-      {% endfor %} 
-    </section>
-    
-    {% endblock %}
-  </main>
+        {% empty %}
+        <p class="text-muted">No notifications yet</p>
+        {% endfor %}
+    </div>
+
+    <!-- 🧳 Tours -->
+    <div class="row g-4">
+        {% for item in tours_data %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+
+                {% if item.tour.image %}
+                <img src="{{ item.tour.image.url }}" class="card-img-top">
+                {% endif %}
+
+                <div class="card-body">
+                    <h5>{{ item.tour.name }}</h5>
+                    <p class="text-muted">
+                        📍 {{ item.tour.city }}, {{ item.tour.country }}
+                    </p>
+
+                    {% if item.next_event %}
+                    <div class="alert alert-info p-2">
+                        <strong>Next Event</strong><br>
+                        {{ item.next_event.activity_title }}<br>
+                        🕒 {{ item.next_event.start_time }}
+                    </div>
+
+                    {% if item.next_event.latitude and item.next_event.longitude %}
+                    <div id="map-{{ item.tour.id }}" style="height:180px;border-radius:10px;" class="mb-2"></div>
+                    {% endif %}
+                    {% endif %}
+
+                    <a href="{% url 'traveler:traveler_tour_detail_view' item.tour.id %}" 
+                    class="details-btn">Details</a>
+
+                    <hr>
+
+                    {% if item.review %}
+                    <strong>Your Review</strong><br>
+                    <span class="text-warning">
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= item.review.rating %} ★ {% else %} ☆ {% endif %} {% endfor %} </span>
+                            <p class="mt-1">{{ item.review.comment }}</p>
+                            {% else %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="tour_id" value="{{ item.tour.id }}">
+                                <input type="hidden" name="rating" id="rating-{{ item.tour.id }}">
+
+                                <div class="rating-stars mb-2" data-tour="{{ item.tour.id }}">
+                                    {% for i in "12345" %}
+                                    <span class="star" data-value="{{ forloop.counter }}">★</span>
+                                    {% endfor %}
+                                </div>
+
+                                <textarea name="comment" class="form-control mb-2"
+                                    placeholder="Write your experience..."></textarea>
+
+                                <button class="btn btn-primary w-100">
+                                    Submit Review
+                                </button>
+                            </form>
+                            {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
 </div>
+
+<!-- ⭐ Stars JS -->
+<script>
+    document.querySelectorAll(".rating-stars").forEach(container => {
+        const stars = container.querySelectorAll(".star");
+        const tourId = container.dataset.tour;
+        const input = document.getElementById(`rating-${tourId}`);
+
+        stars.forEach(star => {
+            star.addEventListener("click", () => {
+                const value = star.dataset.value;
+                input.value = value;
+
+                stars.forEach(s => {
+                    s.classList.toggle("active", s.dataset.value <= value);
+                });
+            });
+        });
+    });
+</script>
+
+<!-- 📍 Maps & Location -->
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    {% for item in tours_data %}
+        {% if item.next_event.latitude and item.next_event.longitude %}
+        (function () {
+            const mapId = "map-{{ item.tour.id }}";
+            const el = document.getElementById(mapId);
+            if (!el) return;
+
+            if (el._leaflet_id) {
+                el._leaflet_id = null;
+            }
+
+            const map = L.map(mapId).setView(
+                [{{ item.next_event.latitude }}, {{ item.next_event.longitude }}],
+                14
+            );
+
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+              .addTo(map);
+
+            L.marker([
+                {{ item.next_event.latitude }},
+                {{ item.next_event.longitude }}
+            ])
+            .addTo(map)
+            .bindPopup("{{ item.next_event.activity_title|escapejs }}");
+        })();
+        {% endif %}
+    {% endfor %}
+});
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const TOUR_ID = "{{ tours_data.0.tour.id|default:'' }}";
+
+        if (!TOUR_ID) {
+            console.warn("No active tour found for traveler");
+            return;
+        }
+
+        navigator.geolocation.watchPosition(
+            position => {
+                fetch("/traveler/save-location/", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: new URLSearchParams({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        tour_id: TOUR_ID
+                    })
+                });
+            },
+            error => console.error(error),
+            { enableHighAccuracy: true }
+        );
+
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

@@ -9,54 +9,97 @@ from django.urls import reverse
 from django.db import transaction
 from django.db.models import Q
 from accounts.models import Traveler, Notification
-from traveler.models import TravelerPayment, TravelerLocation
+from traveler.models import Review,TravelerPayment, TravelerLocation
 from agency.models import Tour, TourSchedule
 from traveler.services.active_tour import get_active_join
 from traveler.services.location_service import save_traveler_location
-from traveler.services.geofence_service import check_geofences_and_notify_users
+from traveler.services.geofence_service import check_geofences_and_notify_users, is_inside_geofence
+from django.views.decorators.csrf import csrf_exempt
+from agency.models import Geofence, GeofenceEvent
 
 
 
 def traveler_dashboard_view(request):
-    traveler = Traveler.objects.get(user=request.user)
-    active_tours = TravelerPayment.objects.filter(traveler=traveler, status="paid")
+    traveler = request.user.traveler_profile
 
-    user = request.user
+    # Paid tours
+    payments = (
+        TravelerPayment.objects
+        .filter(traveler=traveler, status=TravelerPayment.Status.PAID)
+        .select_related("tour")
+    )
 
-    notifications = Notification.objects.filter(
-        user=user
-    ).order_by("-created_at")[:10]
+    tours_data = []
 
-    # # announcements = Announcement.objects.filter(tour__in=[t.tour for t in active_tours])
-    # next_event = TourSchedule.objects.filter(
-    #     tour__in=[t.tour for t in active_tours]
-    # ).order_by("event_date").first()
+    for payment in payments:
+        tour = payment.tour
+
+        next_event = (
+            TourSchedule.objects
+            .filter(tour=tour)
+            .order_by("day_number", "start_time")
+            .first()
+        )
+
+        review = Review.objects.filter(traveler=traveler, tour=tour).first()
+
+        tours_data.append({
+            "tour": tour,
+            "next_event": next_event,
+            "review": review,
+        })
+
+    # Geofence notifications
+    notifications = (
+        Notification.objects
+        .filter(user=request.user)
+        .select_related("event", "event__geofence")
+        .order_by("-created_at")[:10]
+    )
+
+    # Save rivew
+    if request.method == "POST":
+        tour_id = request.POST.get("tour_id")
+        rating = request.POST.get("rating")
+        comment = request.POST.get("comment")
+
+        tour = get_object_or_404(Tour, id=tour_id)
+
+        Review.objects.update_or_create(
+            traveler=traveler,
+            tour=tour,
+            defaults={
+                "rating": rating,
+                "comment": comment
+            }
+        )
+        return redirect("traveler:traveler_dashboard_view")
 
     return render(request, "traveler/traveler_dashboard.html", {
-        "active_tours": active_tours,
+        "tours_data": tours_data,
         "notifications": notifications,
-        # "next_event": next_event,
     })
 
 
-# def tour_detail_view(request, tour_id):
-#     tour = get_object_or_404(Tour, id=tour_id)
-#     traveler = Traveler.objects.get(user=request.user)
 
-#     joined = TravelerPayment.objects.filter(traveler=traveler, tour=tour, status="paid").exists()
+def traveler_tour_detail_view(request, tour_id):
+    tour = get_object_or_404(
+        Tour.objects.select_related(
+            "agency",
+            "tour_guide",
+            "tour_guide__user"
+        ).prefetch_related(
+            "schedules"
+        ),
+        id=tour_id
+    )
 
-#     if request.method == "POST" and not joined:
-#         TravelerPayment.objects.create(
-#             traveler=traveler,
-#             tour=tour,
-#             amount=tour.price
-#         )
-#         return redirect("traveler:payment", tour_id=tour.id)
+    schedules = tour.schedules.all().order_by("day_number", "start_time")
 
-#     return render(request, "traveler/tour_detail.html", {
-#         "tour": tour,
-#         "joined": joined
-#     })
+    return render(request, "traveler/tour_details.html", {
+        "tour": tour,
+        "schedules": schedules,
+    })
 
 
 
@@ -82,7 +125,7 @@ def start_payment_view(request):
 
     if already_paid:
         messages.warning(request, "You already paid for this tour.")
-        return redirect("traveler:traveler_dashboard_view")
+        return redirect("agency:all_tours")
 
     # Open the payment page
     return render(request, "traveler/payment_checkout.html", {
@@ -159,42 +202,101 @@ def callback_view(request):
     })
 
 
-@login_required
-def save_location_view(request):
+
+
+@csrf_exempt
+def save_traveler_location(request):
     if request.method != "POST":
-        return JsonResponse({"ok": False}, status=405)
+        return JsonResponse({"error": "Invalid request"}, status=400)
 
-    data = json.loads(request.body)
-    lat = data.get("lat")
-    lng = data.get("lng")
-    accuracy = data.get("accuracy")
+    traveler = request.user.traveler_profile
+    lat = float(request.POST.get("latitude"))
+    lng = float(request.POST.get("longitude"))
+    tour_id = request.POST.get("tour_id")
+    tour_id = request.POST.get("tour_id")
 
-    if not lat or not lng:
-        return JsonResponse({"ok": False}, status=400)
+    if not tour_id:
+        return JsonResponse(
+            {"error": "tour_id is required"},
+            status=400
+        )
 
-    traveler = request.user.traveler
+
+    geofences = Geofence.objects.filter(
+        schedule__tour_id=tour_id,
+        is_active=True
+    ).select_related("schedule", "schedule__tour", "schedule__tour__tour_guide")
+
+    results = []
+
+    for geofence in geofences:
+        schedule = geofence.schedule
+
+        if not schedule.latitude or not schedule.longitude:
+            continue
+
+        inside, distance = is_inside_geofence(
+            lat,
+            lng,
+            float(schedule.latitude),
+            float(schedule.longitude),
+            geofence.radius_meters
+        )
+
+        tour_guide = schedule.tour.tour_guide
 
 
+        last_event = GeofenceEvent.objects.filter(
+            traveler=traveler,
+            geofence=geofence
+        ).order_by("-occurred_at").first()
 
-    active_join = get_active_join(traveler)
-    if not active_join:
-        return JsonResponse({"ok": False, "error": "No active tour"}, status=403)
+        if (
+            not inside
+            and geofence.trigger_on_exit
+            and (not last_event or last_event.event_type != "exit")
+        ):
+            GeofenceEvent.objects.create(
+                traveler=traveler,
+                tour_guide=tour_guide,
+                geofence=geofence,
+                event_type="exit"
+            )
 
-    current_location = save_traveler_location(
-        traveler,
-        active_join.tour,
-        lat,
-        lng,
-        accuracy
-    )
+            # Notification traveler
+            Notification.objects.create(
+                user=traveler.user,
+                title="⚠️ You left the allowed area",
+                message=f"You moved away from {schedule.activity_title}"
+            )
 
-    alerts = check_geofences_and_notify_users(
-        current_location=current_location,
-        traveler=traveler,
-        tour=active_join.tour
-    )
+            # Notification tour guide
+            if tour_guide:
+                Notification.objects.create(
+                    user=tour_guide.user,
+                    title="🚨 Traveler left geofence",
+                    message=f"{traveler.user.username} left {schedule.activity_title}"
+                )
 
-    for alert in alerts:
-        print("Notify traveler & tour guide")
+            results.append("exit")
 
-    return JsonResponse({"ok": True})
+        # 🟢 ENTER
+        if (
+            inside
+            and geofence.trigger_on_enter
+            and last_event
+            and last_event.event_type == "exit"
+        ):
+            GeofenceEvent.objects.create(
+                traveler=traveler,
+                tour_guide=tour_guide,
+                geofence=geofence,
+                event_type="enter"
+            )
+
+            results.append("enter")
+    print("POST DATA:", request.POST)
+    return JsonResponse({
+        "status": "ok",
+        "events": results
+    })
