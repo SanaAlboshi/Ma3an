@@ -5,79 +5,88 @@
 
 {% include 'tourGuide/sidebar.html' %}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+
 <div class="dashboard-content" style="margin-left: 280px;">
-<div class="container my-5">
-    <h2 class="mb-2">My Tours</h2>
-    <p class="text-muted mb-4">Manage and monitor all your assigned tours</p>
+<div class="container py-5">
 
-    <!-- <div class="row mb-4">
-        <div class="col-md-4 mb-2">
-            <input type="text" class="form-control" placeholder="Search tours by name or ID...">
-        </div>
-        <div class="col-md-8 mb-2 d-flex gap-2">
-            <button class="btn btn-primary">All</button>
-            <button class="btn btn-outline-secondary">Active</button>
-            <button class="btn btn-outline-secondary">Upcoming</button>
-            <button class="btn btn-outline-secondary">Completed</button>
-        </div>
-    </div> -->
+    <!-- Page Title -->
+    <div class="page-title-section text-center mb-5">
+        <h1 class="display-5 fw-bold" style="color: #1a202c;">My Tours</h1>
+        <p class="text-muted">Manage and monitor all your assigned tours</p>
+    </div>
 
-    <div class="row g-4">
+    <!-- Tours Grid -->
+    <div class="tours-grid">
         {% for tour in tours %}
-        <div class="col-md-7 col-lg-5">
-            <div class="card tour-card shadow-sm h-100">
-                <div class="card-header text-white bg-gradient-primary">
-                    <h5>{{ tour.name }}</h5>
-                    <small>{{ tour.id|add:"-TOUR-" }}</small>
-                    {% if tour.end_date < today %}
-                        <span class="badge bg-success float-end">Completed</span>
-                    {% elif tour.start_date > today %}
-                        <span class="badge bg-info float-end">Upcoming</span>
-                    {% else %}
-                        <span class="badge bg-warning float-end">Active</span>
-                    {% endif %}
+        <div class="tour-card">
+
+            <!-- Image -->
+            <div class="tour-image">
+                {% if tour.image %}
+                    <img src="{{ tour.image.url }}" alt="{{ tour.name }}">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" alt="{{ tour.name }}">
+                {% endif %}
+
+                <!-- Status Badge -->
+                {% if tour.end_date < today %}
+                    <span class="badge bg-success position-absolute top-0 end-0 m-2">Completed</span>
+                {% elif tour.start_date > today %}
+                    <span class="badge bg-info position-absolute top-0 end-0 m-2">Upcoming</span>
+                {% else %}
+                    <span class="badge bg-warning position-absolute top-0 end-0 m-2">Active</span>
+                {% endif %}
+            </div>
+
+            <!-- Content -->
+            <div class="tour-content">
+                <h3 class="tour-title">{{ tour.name }}</h3>
+
+                <div class="tour-meta">
+                    <div class="tour-meta-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ tour.city }}, {{ tour.country }}</span>
+                    </div>
+
+                    <div class="tour-meta-item">
+                        <i class="far fa-clock"></i>
+                        <span>{{ tour.days }} Days</span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
-                        <div><i class="bi bi-calendar"></i> {{ tour.days }} Days</div>
-                        <div><i class="bi bi-people"></i> {{ tour.travelers }} / {{ tour.travelers }}</div>
+
+                <div class="tour-meta">
+                    <div class="tour-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>{{ tour.travelers }} Travelers</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <div><i class="bi bi-geo-alt"></i> {{ tour.city }}, {{ tour.country }}</div>
-                        
-                        <div><br><i class="bi bi-clock"></i> {{ tour.start_date|date:"M d" }}</div>
+
+                    <div class="tour-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>{{ tour.start_date|date:"M d, Y" }}</span>
                     </div>
-                    <a href="{% url 'tourGuide:tour_details' tour.id %}" class="btn btn-primary w-100">View Details ➜</a>
+                </div>
+
+                <!-- Action -->
+                <div class="action-buttons">
+                    <a href="{% url 'tourGuide:tour_details' tour.id %}" class="btn-book w-100">
+                        View Details
+                    </a>
                 </div>
             </div>
         </div>
+
+        {% empty %}
+        <div class="no-tours">
+            <i class="fas fa-route fa-5x text-muted mb-3"></i>
+            <h4>No tours assigned yet</h4>
+            <p class="text-muted">Once tours are assigned, they will appear here.</p>
+        </div>
         {% endfor %}
     </div>
+
 </div>
 </div>
-
-
-<style>
-
-
-.tour-card {
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.bg-gradient-primary {
-    background: linear-gradient(90deg, #4f46e5, #3b82f6);
-}
-
-.badge {
-    font-size: 0.8rem;
-    padding: 0.25em 0.5em;
-}
-
-.row.g-4 > .col-md-6 {
-    display: flex;
-}
-
-</style>
 
 {% endblock %}
