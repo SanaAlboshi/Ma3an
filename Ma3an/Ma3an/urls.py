@@ -20,7 +20,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("main.urls")),
@@ -28,6 +27,7 @@ urlpatterns = [
     path('accounts/', include("accounts.urls")),
     path('traveler/', include("traveler.urls")),
     path('agency/', include('agency.urls')),
+    path('tourGuide/', include('tourGuide.urls')),
 ]
 
 if settings.DEBUG:

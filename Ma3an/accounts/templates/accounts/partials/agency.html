@@ -1,0 +1,6 @@
+<p>Agency Name: {{ profile.agency_name|default:"-" }}</p>
+<p>Phone: {{ profile.phone_number|default:"-" }}</p>
+<p>City: {{ profile.city|default:"-" }}</p>
+<p>Commercial License: {{ profile.commercial_license|default:"-" }}</p>
+<p>Approval Status: {{ profile.get_approval_status_display }}</p>
+<p>Rejection Reason: {{ profile.rejection_reason|default:"-" }}</p>

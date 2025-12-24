@@ -1,24 +1,40 @@
 {% extends "main/base.html" %}
 {% load static %}
 
-{% block title %} Sign In - Ma3an {% endblock %}
+{% block title %}Signin{% endblock %}
 
 {% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Welcome Back!</h2>
 
+                    <form action="{% url 'accounts:signin_view' %}" method="post">
+                        {% csrf_token %}
 
-<div class="row form-container">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" placeholder="Username" name="username" required>
+                        </div>
 
-    <form class="user-form" action="{% url 'accounts:signin_view' %}" method="post">
-        <h2>Welcome Back!</h2>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" placeholder="Password" name="password" required>
+                        </div>
 
-        {% csrf_token %}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </form>
 
-        <input type="text" placeholder="Username" name="username" required />
-        <input type="password" placeholder="Password" name="password" required />
-        <button type="submit" class="btn submit-btn">Login</button>
-
-    </form>
-
+                    <div class="text-center mt-3">
+                        <p class="mb-0">Don't have an account? 
+                            <a href="{% url 'accounts:signup_role' %}">Sign Up</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}

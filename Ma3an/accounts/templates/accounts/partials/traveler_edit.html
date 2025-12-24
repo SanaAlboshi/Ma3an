@@ -1,0 +1,10 @@
+<input type="date" name="date_of_birth" value="{{ profile.date_of_birth|date:'Y-m-d' }}">
+<input name="phone_number" value="{{ profile.phone_number|default:'' }}">
+<select name="gender">
+    <option value="">---</option>
+    <option value="male" {% if profile.gender == 'male' %}selected{% endif %}>Male</option>
+    <option value="female" {% if profile.gender == 'female' %}selected{% endif %}>Female</option>
+</select>
+<input name="nationality" value="{{ profile.nationality|default:'' }}">
+<input name="passport_number" value="{{ profile.passport_number|default:'' }}">
+<input type="date" name="passport_expiry_date" value="{{ profile.passport_expiry_date|date:'Y-m-d' }}">

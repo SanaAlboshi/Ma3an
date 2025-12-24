@@ -1,0 +1,6 @@
+<p>Date of Birth: {{ profile.date_of_birth|default:"-" }}</p>
+<p>Phone: {{ profile.phone_number|default:"-" }}</p>
+<p>Gender: {{ profile.get_gender_display|default:"-" }}</p>
+<p>Nationality: {{ profile.nationality|default:"-" }}</p>
+<p>Passport Number: {{ profile.passport_number|default:"-" }}</p>
+<p>Passport Expiry: {{ profile.passport_expiry_date|default:"-" }}</p>

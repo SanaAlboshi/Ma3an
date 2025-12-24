@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TravelerPayment',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('status', models.CharField(choices=[('initiated', 'Initiated'), ('paid', 'Paid'), ('failed', 'Failed')], default='initiated', max_length=20)),
                 ('amount', models.IntegerField(help_text='Amount in halalas')),
                 ('currency', models.CharField(default='SAR', max_length=3)),

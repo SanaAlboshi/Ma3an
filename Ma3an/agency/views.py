@@ -108,8 +108,38 @@ def add_tour_view(request):
         'current_step': 1,
     })
 
+
+
 def all_tours_view(request):
     tours = Tour.objects.all()
+
+    # ===== فلترة الوجهة =====
+    destination = request.GET.get('destination')
+    if destination and destination != "All":
+        tours = tours.filter(city=destination)
+
+    # ===== فلترة عدد الأيام =====
+    duration = request.GET.get('duration')
+    if duration == '1-3':
+        tours = tours.filter(days__gte=1, days__lte=3)
+    elif duration == '4-7':
+        tours = tours.filter(days__gte=4, days__lte=7)
+    elif duration == '7+':
+        tours = tours.filter(days__gte=8)
+
+    # ===== فلترة السعر =====
+    price_range = request.GET.get('price_range')
+    if price_range == '0-1000':
+        tours = tours.filter(price__lte=1000)
+    elif price_range == '1000-5000':
+        tours = tours.filter(price__gte=1000, price__lte=5000)
+    elif price_range == '5000+':
+        tours = tours.filter(price__gte=5000)
+
+    # ===== إعداد قائمة المدن للـ select =====
+    cities = Tour.objects.values_list('city', flat=True).distinct()
+
+    # ===== مدة كل رحلة =====
     tours_with_duration = []
     for tour in tours:
         duration_days = (tour.end_date - tour.start_date).days + 1
@@ -117,7 +147,16 @@ def all_tours_view(request):
             'tour': tour,
             'duration': duration_days
         })
-    return render(request, 'agency/all_tours.html', {'tours': tours_with_duration})
+
+    return render(request, 'agency/all_tours.html', {
+        'tours': tours_with_duration,
+        'cities': cities,  # قائمة المدن للفلتر
+        'selected_destination': destination,
+        'selected_duration': duration,
+        'selected_price_range': price_range,
+    })
+
+
 
 
 def edit_tour_view(request, tour_id):

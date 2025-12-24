@@ -1,0 +1,90 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %} {% endblock %}
+
+{% block content %}
+
+<style>
+    .all-guides-wrap{
+        margin: 3rem;
+    }
+    .actions {
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 14px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn.primary {
+        background: #146c3c;
+        color: white;
+    }
+
+    .btn.danger {
+        background: #ef4444;
+        color: white;
+    }
+
+    .guides-table {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .guide-row {
+        display: grid;
+        grid-template-columns: 2fr 2fr 2fr auto;
+        align-items: center;
+        background: #f1f1f1;
+        padding: 14px 20px;
+        border-radius: 30px;
+    }
+
+    .col {
+        font-size: 14px;
+    }
+</style>
+
+<div class="all-guides-wrap">
+    <h2>{{ agency.agency_name }} Tour Guides</h2>
+
+    <div class="actions">
+        <a href="{% url 'accounts:create_tourguide_view' %}" class="btn primary">Add Tour Guide</a>
+    </div>
+
+    <div class="guides-table">
+        {% for guide in tour_guides %}
+        <div class="guide-row">
+            <div class="col name">
+                {{ guide.user.first_name }} {{ guide.user.last_name }}
+            </div>
+
+            <div class="col email">
+                {{ guide.user.email }}
+            </div>
+
+            <div class="col status">
+                Not assigned
+            </div>
+
+            <div class="col action">
+                <form method="post" action="{% url 'tourGuide:delete_guide' guide.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn danger">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p>No tour guides yet.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

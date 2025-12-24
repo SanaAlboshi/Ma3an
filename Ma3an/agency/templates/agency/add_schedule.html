@@ -125,26 +125,33 @@ function addActivity(day) {
     const div = document.createElement("div");
     div.className = "activity";
     div.innerHTML = `
-        <label>Start Time</label>
-        <input type="time" name="day_${day}_start_time[]" class="form-control" required>
-        
-        <label>End Time</label>
-        <input type="time" name="day_${day}_end_time[]" class="form-control" required>
-        
-        <label>Activity Title</label>
-        <input type="text" name="day_${day}_activity_title[]" class="form-control" required>
-        
-        <label>Location Name</label>
-        <input type="text" name="day_${day}_location_name[]" class="form-control">
-        
-        <label>Location URL</label>
-        <input type="url" name="day_${day}_location_url[]" class="form-control">
-        
-        <label>Description</label>
-        <textarea name="day_${day}_description[]" class="form-control" rows="3"></textarea>
-        
-        <span class="remove-activity" data-remove-activity>Remove</span>
-    `;
+    <label>Start Time</label>
+    <input type="time" name="day_${day}_start_time[]" class="form-control" required>
+    
+    <label>End Time</label>
+    <input type="time" name="day_${day}_end_time[]" class="form-control" required>
+    
+    <label>Activity Title</label>
+    <input type="text" name="day_${day}_activity_title[]" class="form-control" required>
+    
+    <label>Location Name</label>
+    <input type="text" name="day_${day}_location_name[]" class="form-control">
+
+    <label>Latitude</label>
+    <input type="text" name="day_${day}_latitude[]" class="form-control">
+
+    <label>Longitude</label>
+    <input type="text" name="day_${day}_longitude[]" class="form-control">
+    
+    <label>Location URL</label>
+    <input type="url" name="day_${day}_location_url[]" class="form-control">
+    
+    <label>Description</label>
+    <textarea name="day_${day}_description[]" class="form-control" rows="3"></textarea>
+    
+    <span class="remove-activity" data-remove-activity>Remove</span>
+`;
+
     container.appendChild(div);
     console.log('Activity added successfully for day:', day);
 }

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'traveler',
     'agency',
     'backOffice',
+    'tourGuide'
 ]
 
 MIDDLEWARE = [

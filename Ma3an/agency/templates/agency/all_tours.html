@@ -1,336 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Tours - Ma3an</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% extends 'main/base.html' %}
+{% load static %}
 
-    <style>
-        /* Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block content %}
 
-        body {
-            background-color: #f5f1eb;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            min-height: 100vh;
-            padding: 50px 0 60px 0;
-        }
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
 
-        /* Page Title */
-        .page-title-section {
-            text-align: center;
-            margin-bottom: 45px;
-        }
+<div class="container">
+    <div class="page-title-section">
+        <h1>Explore Our Tours</h1>
+        <p>Discover amazing destinations and create unforgettable memories</p>
+    </div>
 
-        .page-title-section h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #1a202c;
-            margin-bottom: 12px;
-            letter-spacing: -1px;
-        }
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" class="filter-controls">
+            <div class="filter-item">
+                <label>Search</label>
+                <input type="text" name="search" placeholder="Search tours..." value="{{ request.GET.search }}">
+            </div>
 
-        .page-title-section p {
-            color: #718096;
-            font-size: 1.1rem;
-            font-weight: 400;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+            <div class="filter-item">
+                <label>Destination</label>
+                <select name="destination" onchange="this.form.submit()">
+                    <option value="">All Destinations</option>
+                    {% for city in cities %}
+                        <option value="{{ city }}" {% if selected_destination == city %}selected{% endif %}>{{ city }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        /* Filter Section */
-        .filter-section {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 14px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            margin-bottom: 35px;
-        }
+            <div class="filter-item">
+                <label>Duration</label>
+                <select name="duration" onchange="this.form.submit()">
+                    <option value="">All Durations</option>
+                    <option value="1-3" {% if selected_duration == '1-3' %}selected{% endif %}>1-3 Days</option>
+                    <option value="4-7" {% if selected_duration == '4-7' %}selected{% endif %}>4-7 Days</option>
+                    <option value="7+" {% if selected_duration == '7+' %}selected{% endif %}>7+ Days</option>
+                </select>
+            </div>
 
-        .filter-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+            <div class="filter-item">
+                <label>Price Range</label>
+                <select name="price_range" onchange="this.form.submit()">
+                    <option value="">All Prices</option>
+                    <option value="0-1000" {% if selected_price_range == '0-1000' %}selected{% endif %}>Under 1000 SAR</option>
+                    <option value="1000-5000" {% if selected_price_range == '1000-5000' %}selected{% endif %}>1000-5000 SAR</option>
+                    <option value="5000+" {% if selected_price_range == '5000+' %}selected{% endif %}>5000+ SAR</option>
+                </select>
+            </div>
+        </form>
+    </div>
 
-        .filter-item {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .filter-item label {
-            font-size: 0.85rem;
-            color: #4a5568;
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        .filter-item select,
-        .filter-item input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: #2d3748;
-            transition: all 0.3s;
-        }
-
-        .filter-item select:focus,
-        .filter-item input:focus {
-            outline: none;
-            border-color: #48bb78;
-            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
-        }
-
-        /* Tours Grid */
-        .tours-grid {
-            display: grid;
-            grid-template-columns: 1fr; /* كل كارت ياخذ سطر كامل */
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        /* Tour Card */
-        .tour-card {
-            background-color: #fff;
-            border-radius: 16px;
-            padding: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            transition: all 0.3s ease;
-        }
-
-        .tour-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-        }
-
-        .tour-image {
-            width: 100%;
-            height: 200px;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 14px;
-        }
-
-        .tour-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s ease;
-        }
-
-        .tour-card:hover .tour-image img {
-            transform: scale(1.05);
-        }
-
-        .rating {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background-color: rgba(255,255,255,0.95);
-            padding: 5px 10px;
-            border-radius: 8px;
-            display: flex;
-            gap: 2px;
-            backdrop-filter: blur(4px);
-        }
-
-        .star {
-            color: #fbbf24;
-            font-size: 13px;
-        }
-
-        .tour-content {
-            padding: 0 6px;
-        }
-
-        .tour-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: #1a202c;
-            line-height: 1.4;
-        }
-
-        .tour-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-bottom: 12px;
-        }
-
-        .tour-meta-item {
-            color: #a0aec0;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .tour-meta-item i {
-            font-size: 0.8rem;
-            width: 14px;
-            color: #cbd5e0;
-        }
-
-        .price-section {
-            margin-bottom: 14px;
-            padding-top: 10px;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .tour-price {
-            font-size: 1.1rem;
-            color: #1a202c;
-            font-weight: 700;
-        }
-
-        .person-price {
-            color: #a0aec0;
-            font-size: 0.8rem;
-            font-weight: 400;
-            margin-left: 4px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-book {
-            flex: 2;
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 16px;
-            font-weight: 700;
-            font-size: 0.88rem;
-            transition: all 0.3s;
-            text-decoration: none;
-            text-align: center;
-            display: inline-block;
-        }
-
-        .btn-book:hover {
-            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(56,161,105,0.35);
-            color: white;
-        }
-
-        .btn-secondary-action {
-            flex: 1;
-            background-color: #fff;
-            border: 1.5px solid #e2e8f0;
-            color: #718096;
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: 600;
-            font-size: 0.82rem;
-            transition: all 0.3s;
-            text-decoration: none;
-            text-align: center;
-            display: inline-block;
-        }
-
-        .btn-secondary-action:hover {
-            background-color: #f7fafc;
-            border-color: #cbd5e0;
-            color: #4a5568;
-        }
-
-        .no-tours {
-            text-align: center;
-            padding: 80px 30px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        }
-
-        .no-tours i {
-            color: #e2e8f0;
-            margin-bottom: 24px;
-        }
-
-        .no-tours h4 {
-            color: #2d3748;
-            margin-bottom: 10px;
-            font-weight: 700;
-            font-size: 1.4rem;
-        }
-
-        .no-tours p {
-            color: #a0aec0;
-            font-size: 1rem;
-            margin-bottom: 20px;
-        }
-
-        .no-tours .btn-primary {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            border: none;
-            padding: 12px 30px;
-            border-radius: 10px;
-            font-weight: 600;
-            box-shadow: 0 3px 10px rgba(56,161,105,0.25);
-        }
-
-        @media (max-width:768px) {
-            .page-title-section h1 { font-size: 1.8rem; }
-            .filter-controls { flex-direction: column; }
-            .filter-item { width: 100%; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="page-title-section">
-            <h1>Explore Our Tours</h1>
-            <p>Discover amazing destinations and create unforgettable memories</p>
-        </div>
-
-        <div class="filter-section">
-            <div class="filter-controls">
-                <div class="filter-item">
-                    <label>Search</label>
-                    <input type="text" placeholder="Search tours...">
+    <!-- Tours Grid -->
+    <div class="tours-grid">
+        {% for item in tours %}
+        <div class="tour-card">
+            <div class="tour-image">
+                {% if item.tour.image %}
+                    <img src="{{ item.tour.image.url }}" alt="{{ item.tour.name }}">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" alt="{{ item.tour.name }}">
+                {% endif %}
+            </div>
+            <div class="tour-content">
+                <h3 class="tour-title">{{ item.tour.name }}</h3>
+                <div class="tour-meta">
+                    <div class="tour-meta-item"><i class="fas fa-map-marker-alt"></i><span>{{ item.tour.city }}, {{ item.tour.country }}</span></div>
+                    <div class="tour-meta-item"><i class="far fa-clock"></i><span>{{ item.duration }} day{% if item.duration > 1 %}s{% endif %}</span></div>
                 </div>
-                <div class="filter-item">
-                    <label>Destination</label>
-                    <select>
-                        <option>All Destinations</option>
-                        <option>Dubai</option>
-                        <option>Paris</option>
-                        <option>Tokyo</option>
-                    </select>
+                <div class="price-section">
+                    <div class="tour-price">{{ item.tour.price }} SAR<span class="person-price">/ person</span></div>
                 </div>
-                <div class="filter-item">
-                    <label>Duration</label>
-                    <select>
-                        <option>All Durations</option>
-                        <option>1-3 Days</option>
-                        <option>4-7 Days</option>
-                        <option>7+ Days</option>
-                    </select>
-                </div>
-                <div class="filter-item">
-                    <label>Price Range</label>
-                    <select>
-                        <option>All Prices</option>
-                        <option>Under 1000 SAR</option>
-                        <option>1000-5000 SAR</option>
-                        <option>5000+ SAR</option>
-                    </select>
+                <div class="action-buttons">
+                    <a href="{% url 'agency:tour_detail' item.tour.id %}" class="btn-book">Details</a>
+                    <a href="{% url 'agency:edit_tour' item.tour.id %}" class="btn-secondary-action">Edit</a>
+                    <a href="{% url 'agency:delete_tour' item.tour.id %}" class="btn-secondary-action">Delete</a>
                 </div>
             </div>
         </div>
@@ -392,9 +136,11 @@
             </div>
             {% endfor %}
         </div>
+        {% endfor %}
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-</body>
-</html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+{% endblock %}

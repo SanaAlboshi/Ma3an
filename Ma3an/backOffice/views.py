@@ -2,12 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.views.decorators.http import require_POST
-from django.utils import timezone
-from datetime import timedelta
-
-from accounts.models import Agency, Notification
-from agency.models import Subscription, AgencySubscription
+from accounts.models import Agency, Traveler, Notification
+from backOffice.decorators import admin_only
+from agency.models import Subscription
 
 from backOffice.decorators import admin_only
 
@@ -110,7 +107,7 @@ def approve_agency(request, agency_id):
 
 @login_required(login_url="/admin/login/")
 @admin_only
-@require_POST
+# @require_POST
 def reject_agency(request, agency_id):
     agency = get_object_or_404(Agency, id=agency_id)
 

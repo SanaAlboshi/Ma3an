@@ -19,7 +19,7 @@
                 <a href="{% url 'agency:all_tours' %}"><button>All Tours →</button></a>
             </div>
             <li>
-                <a href="{% url 'agency:all_tour_guides' %}"><button>Tour Guides</button></a>
+                <a href="{% url 'tourGuide:all_tourguides' %}"><button>Tour Guides</button></a>
             </li>
             <li><button>Travelers</button></li>
             <li><button>Reports</button></li>
@@ -41,7 +41,7 @@
             <h2>Organize Your Upcoming Trips</h2>
             
             <a href="{% url 'agency:add_tour' %}"><button>+ Add Tour</button></a>
-            <a href="{% url 'agency:add_tour_guide' %}"><button>+ Add TourGuides</button></a>
+            <a href="{% url 'accounts:create_tourguide_view' %}"><button>+ Add TourGuides</button></a>
         </div>
 
         <!-- Stats Cards -->
@@ -69,7 +69,7 @@
 
         <div>
             <h3>Tour Guide Group</h3>
-            <a href="{% url 'agency:all_tour_guides' %}"><button>View All →</button></a>
+            <a href="{% url 'tourGuide:all_tourguides' %}"><button>View All →</button></a>
         </div>
 
         <!-- Recent Alerts -->

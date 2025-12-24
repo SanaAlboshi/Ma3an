@@ -1,0 +1,10 @@
+<input name="agency_name" value="{{ profile.agency_name|default:'' }}">
+<input name="phone_number" value="{{ profile.phone_number|default:'' }}">
+<input name="city" value="{{ profile.city|default:'' }}">
+<input name="commercial_license" value="{{ profile.commercial_license|default:'' }}">
+<!-- <select name="approval_status">
+    <option value="pending" {% if profile.approval_status == 'pending' %}selected{% endif %}>Pending</option>
+    <option value="approved" {% if profile.approval_status == 'approved' %}selected{% endif %}>Approved</option>
+    <option value="rejected" {% if profile.approval_status == 'rejected' %}selected{% endif %}>Rejected</option>
+</select> -->
+<!-- <textarea name="rejection_reason">{{ profile.rejection_reason|default:'' }}</textarea> -->

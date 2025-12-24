@@ -1,0 +1,22 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-5 text-center">
+    <h2>Create Account</h2>
+    <p>Please choose your account type</p>
+
+    <div class="mt-4">
+        <a href="{% url 'accounts:traveler_signup' %}"
+           class="btn btn-primary btn-lg m-2">
+            Sign up as Traveler
+        </a>
+
+        <a href="{% url 'accounts:agency_signup' %}"
+           class="btn btn-success btn-lg m-2">
+            Sign up as Agency
+        </a>
+    </div>
+</div>
+{% endblock %}

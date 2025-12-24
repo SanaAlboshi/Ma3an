@@ -6,8 +6,6 @@ from django.db import models
 
 class User(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
-    USERNAME_FIELD = 'email' 
-    REQUIRED_FIELDS = ['username']
     
     groups = models.ManyToManyField( 
             'auth.Group', 
@@ -37,7 +35,8 @@ class GenderChoices(models.TextChoices):
     MALE = 'male', 'Male'
     FEMALE = 'female', 'Female'
 
-        
+# gender = forms.ChoiceField(choices=GENDER_CHOICES, required=False)
+
 class Traveler(models.Model):
     user = models.OneToOneField(User, on_delete = models.CASCADE, related_name = 'traveler_profile')
     date_of_birth = models.DateField(null=True, blank=True)
@@ -48,7 +47,7 @@ class Traveler(models.Model):
         null=True,
         blank=True
     )
-    nationality = models.CharField(max_length=3, null=True, blank=True)  
+    nationality = models.CharField(max_length=20, null=True, blank=True)  
     passport_number = models.CharField(max_length = 20, unique = True, null=True, blank=True)
     passport_expiry_date = models.DateField(null=True, blank=True)
     

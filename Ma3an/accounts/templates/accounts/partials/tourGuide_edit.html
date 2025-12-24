@@ -1,0 +1,43 @@
+<div class="mb-3">
+    <label class="form-label">Phone</label>
+    <input name="phone" value="{{ profile.phone|default:'' }}" class="form-control">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Gender</label>
+    <select name="gender" class="form-select">
+        <option value="">---</option>
+        <option value="male" {% if profile.gender == 'male' %}selected{% endif %}>Male</option>
+        <option value="female" {% if profile.gender == 'female' %}selected{% endif %}>Female</option>
+    </select>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Nationality</label>
+    <select name="nationality" class="form-select">
+        <option value="">---</option>
+        {% for country in countries %}
+            <option value="{{ country.alpha_3 }}" {% if profile.nationality == country.alpha_3 %}selected{% endif %}>
+                {{ country.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Passport Number</label>
+    <input name="passport_number" value="{{ profile.passport_number|default:'' }}" class="form-control">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Passport Expiry Date</label>
+    <input type="date" name="passport_expiry_date" value="{{ profile.passport_expiry_date|date:'Y-m-d' }}" class="form-control">
+</div>
+
+<!-- إذا أردت يمكن تفعيل الـ checkbox لاحقًا -->
+<!--
+<div class="form-check mb-3">
+    <input type="checkbox" name="is_active" class="form-check-input" id="isActive" {% if profile.is_active %}checked{% endif %}>
+    <label class="form-check-label" for="isActive">Active</label>
+</div>
+-->

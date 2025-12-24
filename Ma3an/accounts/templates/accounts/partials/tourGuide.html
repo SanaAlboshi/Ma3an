@@ -1,0 +1,8 @@
+<p>Agency: {{ profile.agency.agency_name|default:"-" }}</p>
+<p>Phone: {{ profile.phone|default:"-" }}</p>
+<p>Gender: {{ profile.get_gender_display|default:"-" }}</p>
+<p>Nationality: {{ profile.nationality|default:"-" }}</p>
+<p>Passport Number: {{ profile.passport_number|default:"-" }}</p>
+<p>Passport Expiry: {{ profile.passport_expiry_date|default:"-" }}</p>
+<p>Active: {{ profile.is_active }}</p>
+<!-- <p>Languages: {% for lang in profile.languages.all %}{{ lang.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p> -->
