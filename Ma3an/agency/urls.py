@@ -14,6 +14,7 @@ urlpatterns = [
     path('add-tour/', views.add_tour_view, name='add_tour'),
     path('all-tours/', views.all_tours_view, name='all_tours'),
     path('tour/edit/<int:tour_id>/', views.edit_tour_view, name='edit_tour'),
+    
     path('tour/delete/<int:tour_id>/', views.delete_tour_view, name='delete_tour'),
     path('tour/<int:tour_id>/', views.tour_detail_view, name='tour_detail'),
     # Payment

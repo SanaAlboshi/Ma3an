@@ -39,11 +39,9 @@
                     <li class="nav-item"><a class="nav-link" href="#agencies">Agencies</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
                     <li class="nav-item">
-    <a class="nav-link {% if request.resolver_match.url_name == 'subscription_view' %}active fw-bold{% endif %}" 
-       href="{% url 'agency:subscription_view' %}">
-        <i class="bi bi-credit-card-2-front me-1"></i>subscription 
-    </a>
-</li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'agency:subscription_view' %}">subscription </a></li>
+                    {% if user.is_authenticated and user.user_type == 'agency' %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'agency:subscription_view' %}">Subscription</a> </li>{% endif %}
 
 
                     {% if request.user.is_authenticated %}

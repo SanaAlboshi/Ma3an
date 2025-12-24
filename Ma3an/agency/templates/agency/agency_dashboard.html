@@ -3,30 +3,55 @@
 
 {% block extra_css %}
 <style>
-    :root {
-        --sidebar-bg: #ffffff;
-        --main-bg: #f8f9fa;
-        --accent-color: #0d6efd;
+    :root { 
+        --sidebar-bg: #ffffff; 
+        --main-bg: #f8f9fa; 
+        --accent-color: #0d6efd; 
     }
-    body { background-color: var(--main-bg); }
     
-    .sidebar {
-        width: 280px; height: 100vh; position: fixed;
-        left: 0; top: 76px; background: var(--sidebar-bg);
-        border-right: 1px solid #eee; padding: 2rem 1.5rem; z-index: 100;
+    body { background-color: var(--main-bg); font-family: 'Inter', -apple-system, sans-serif; }
+
+    /* تنسيق السايدبار ليكون ثابتاً عند التنقل */
+    .sidebar { 
+        width: 280px; 
+        height: calc(100vh - 76px); 
+        position: fixed; 
+        left: 0; 
+        top: 76px; 
+        background: var(--sidebar-bg); 
+        border-right: 1px solid #eee; 
+        padding: 2rem 1.5rem; 
+        z-index: 100; 
+        overflow-y: auto; 
     }
-    .nav-link-custom {
-        display: flex; align-items: center; padding: 0.8rem 1rem;
-        color: #555; text-decoration: none; border-radius: 10px;
-        margin-bottom: 0.5rem; transition: 0.3s;
+
+    .nav-link-custom { 
+        display: flex; 
+        align-items: center; 
+        padding: 0.8rem 1rem; 
+        color: #555; 
+        text-decoration: none; 
+        border-radius: 10px; 
+        margin-bottom: 0.5rem; 
+        transition: 0.3s; 
     }
-    .nav-link-custom:hover, .nav-link-custom.active {
-        background: rgba(13, 110, 253, 0.1); color: var(--accent-color);
+
+    .nav-link-custom:hover, .nav-link-custom.active { 
+        background: rgba(13, 110, 253, 0.1); 
+        color: var(--accent-color); 
+        font-weight: 600;
     }
-    .dashboard-content { margin-left: 280px; padding: 2rem; }
-    .stat-card { border: none; border-radius: 15px; transition: transform 0.3s; }
+
+    .dashboard-content { 
+        margin-left: 280px; 
+        padding: 2rem; 
+        min-height: calc(100vh - 76px);
+    }
+
+    .stat-card { border: none; border-radius: 15px; transition: transform 0.3s; background: white; }
     .stat-card:hover { transform: translateY(-5px); }
-    .tour-img { width: 80px; height: 50px; object-fit: cover; border-radius: 8px; }
+    
+    .table-card { border-radius: 20px; border: none; }
 </style>
 {% endblock %}
 
@@ -37,16 +62,35 @@
             <i class="bi bi-building fs-3"></i>
         </div>
         <h5 class="fw-bold mb-0">Ma3an</h5>
-        <p class="text-muted small">Travel Agency</p>
+        <p class="text-muted small">Travel Agency Dashboard</p>
     </div>
 
     <nav>
-        <a href="#" class="nav-link-custom active"><i class="bi bi-speedometer2"></i> Dashboard</a>
-        <a href="{% url 'agency:all_tours' %}" class="nav-link-custom"><i class="bi bi-globe-americas"></i> Explore All Tours</a>
-        <a href="{% url 'agency:my_tours' %}" class="nav-link-custom"><i class="bi bi-suitcase-lg"></i> My Tours</a>
+        <a href="{% url 'agency:dashboard' %}" class="nav-link-custom active">
+            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        </a>
+        <a href="{% url 'agency:my_tours' %}" class="nav-link-custom">
+            <i class="bi bi-suitcase-lg me-2"></i> My Tours
+        </a>
+        
         <hr class="text-muted">
-        <h6 class="text-uppercase small fw-bold text-muted mb-3">Our Team</h6>
-        <a href="{% url 'accounts:create_tourguide_view' %}" class="btn btn-outline-primary btn-sm w-100 mb-3">+ Add TourGuides</a>
+        <h6 class="text-uppercase small fw-bold text-muted mb-3">Account</h6>
+        <a href="{% url 'agency:subscription_view' %}" class="nav-link-custom">
+            <i class="bi bi-credit-card me-2"></i> Subscription 
+            {% if agency.current_subscription %}<span class="badge bg-success ms-auto" style="font-size: 0.6rem;">Active</span>{% endif %}
+        </a>
+
+        <hr class="text-muted">
+        <h6 class="text-uppercase small fw-bold text-muted mb-3">Team Management</h6>
+        
+        <a href="{% url 'accounts:create_tourguide_view' %}" class="btn btn-primary btn-sm w-100 mb-2 shadow-sm">
+            <i class="bi bi-person-plus me-1"></i> Add New TourGuide
+        </a>
+
+        <a href="/tourGuide/all/guides/" class="btn btn-outline-secondary btn-sm w-100 mb-3">
+            <i class="bi bi-people me-1"></i> View All My Guides
+        </a>
+
     </nav>
 </aside>
 
@@ -54,78 +98,100 @@
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="fw-bold">Organize Your Upcoming Trips</h3>
-                <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill small">Agency Manager Mode</span>
+                <h3 class="fw-bold">Welcome Back, {{ request.user.username }}</h3>
+                <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill small">Agency Mode</span>
             </div>
             <a href="{% url 'agency:add_tour' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                <i class="bi bi-plus-circle me-1"></i> Add Tour
+                <i class="bi bi-plus-circle me-1"></i> Add New Tour
             </a>
         </div>
 
-        <div class="row g-4 mb-5">
-            <div class="col-md-3">
-                <div class="card stat-card shadow-sm p-3 border-0 bg-white text-center">
-                    <div class="text-primary mb-2"><i class="bi bi-calendar-check fs-2"></i></div>
+        <div class="row g-3 mb-5">
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-primary border-4">
+                    <div class="text-primary mb-2"><i class="bi bi-calendar-event fs-2"></i></div>
                     <h4 class="fw-bold mb-0">{{ upcoming_tours_count }}</h4>
                     <p class="text-muted small mb-0">Upcoming Tours</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card shadow-sm p-3 border-0 bg-white text-center">
-                    <div class="text-success mb-2"><i class="bi bi-activity fs-2"></i></div>
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-success border-4">
+                    <div class="text-success mb-2"><i class="bi bi-play-circle fs-2"></i></div>
                     <h4 class="fw-bold mb-0">{{ active_tours_count }}</h4>
                     <p class="text-muted small mb-0">Active Tours</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card shadow-sm p-3 border-0 bg-white text-center">
-                    <div class="text-warning mb-2"><i class="bi bi-briefcase fs-2"></i></div>
-                    <h4 class="fw-bold mb-0">{{ tour_guides_count }}</h4> <p class="text-muted small mb-0">Tour Guides</p>
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-secondary border-4">
+                    <div class="text-secondary mb-2"><i class="bi bi-clock-history fs-2"></i></div>
+                    <h4 class="fw-bold mb-0">{{ past_tours_count }}</h4>
+                    <p class="text-muted small mb-0">Past Tours</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card shadow-sm p-3 border-0 bg-white text-center">
-                    <div class="text-info mb-2"><i class="bi bi-people fs-2"></i></div>
-                    <h4 class="fw-bold mb-0">{{ travelers_count }}</h4>
-                    <p class="text-muted small mb-0">Registered Travelers</p>
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-warning border-4">
+                    <div class="text-warning mb-2"><i class="bi bi-people fs-2"></i></div>
+                    <h4 class="fw-bold mb-0">{{ total_travelers|default:"0" }}</h4>
+                    <p class="text-muted small mb-0">Total Travelers</p>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card stat-card shadow-sm p-3 text-center border-bottom border-dark border-4">
+                    <div class="text-dark mb-2"><i class="bi bi-person-badge fs-2"></i></div>
+                    <h4 class="fw-bold mb-0">{{ tour_guides_count }}</h4>
+                    <p class="text-muted small mb-0">Total TourGuides</p>
                 </div>
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
-            <h5 class="fw-bold mb-4">Recent Tours</h5>
+        <div class="card table-card border-0 shadow-sm p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h5 class="fw-bold mb-0">Active Tours In Progress</h5>
+                    <p class="text-muted small mb-0">Currently running tours and their details</p>
+                </div>
+                <a href="{% url 'agency:my_tours' %}" class="btn btn-sm btn-outline-secondary">View All History</a>
+            </div>
+            
             <div class="table-responsive">
-                <table class="table table-borderless align-middle">
-                    <thead>
-                        <tr class="text-muted small border-bottom">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
                             <th>Tour Name</th>
+                            <th>Location</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Travelers</th>
                             <th>Status</th>
-                            <th class="text-end">Max Travelers</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for tour in tours|slice:":4" %}
-                        <tr class="border-bottom">
-                            <td class="py-3">
-                                <div class="d-flex align-items-center">
-                                    {% if tour.image %}<img src="{{ tour.image.url }}" class="tour-img me-3">{% endif %}
-                                    <div>
-                                        <div class="fw-bold">{{ tour.name }}</div>
-                                        <div class="text-muted small">{{ tour.city }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                {% if tour.start_date > today %}
-                                    <span class="badge bg-primary-subtle text-primary">Upcoming</span>
-                                {% else %}
-                                    <span class="badge bg-success-subtle text-success">Active</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-end fw-bold">{{ tour.travelers }}</td>
-                        </tr>
+                        {% for tour in tours %}
+                            {% if tour.start_date <= today and tour.end_date >= today %}
+                            <tr>
+                                <td class="fw-bold">{{ tour.name }}</td>
+                                <td><i class="bi bi-geo-alt text-primary me-1"></i> {{ tour.name }}</td>
+                                <td>{{ tour.start_date|date:"M. d, Y" }}</td>
+                                <td>{{ tour.end_date|date:"M. d, Y" }}</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-people-fill me-1"></i> {{ tour.travelers.count }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill small">
+                                        <i class="bi bi-record-fill me-1"></i> Active
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endif %}
                         {% empty %}
-                        <tr><td colspan="3" class="text-center py-4">No tours found.</td></tr>
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-info-circle d-block fs-2 mb-2"></i>
+                                    No active tours at the moment.
+                                </td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>

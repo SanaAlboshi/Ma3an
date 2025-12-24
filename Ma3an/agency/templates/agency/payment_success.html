@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div class="card shadow p-5 border-0" style="border-radius: 15px;">
+        <div class="mb-4">
+            <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+        </div>
+        
+        <h2 class="text-success fw-bold">Payment Successful!</h2>
+        <p class="lead">
+            Your <strong>{{ subscription.subscriptionType }}</strong> plan has been activated successfully.
+        </p>
+        
+        <div class="alert alert-light border">
+            Order ID: <span class="text-muted">#{{ payment.moyasar_id }}</span>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="mt-4">
+            <a href="{% url 'agency:dashboard' %}" class="btn btn-success btn-lg px-5 shadow-sm">
+                Go to Dashboard
+            </a>
+        </div>
+
+        <p class="text-muted mt-4 small">
+            You will be redirected automatically in <span id="countdown">5</span> seconds...
+        </p>
+    </div>
+</div>
+
+<script>
+    let seconds = 5;
+    const countdownEl = document.getElementById('countdown');
+    
+    const timer = setInterval(() => {
+        seconds--;
+        countdownEl.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(timer);
+            window.location.href = "{% url 'agency:dashboard' %}";
+        }
+    }, 1000);
+</script>
+{% endblock %}

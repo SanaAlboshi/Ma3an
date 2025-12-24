@@ -5,7 +5,6 @@ from django.db.models.functions import Cast, Round
 from django.core.paginator import Paginator
 from decimal import Decimal
 from .models import Tour, TourSchedule
-from datetime import datetime
 import requests
 from django.conf import settings
 from django.urls import reverse
@@ -15,28 +14,38 @@ from django.contrib.auth.decorators import login_required
 from accounts.models import TourGuide
 from django.db.models import Sum
 from traveler.models import TravelerPayment # استيراد موديل الدفع من تطبيق ترافل
+from datetime import date, datetime
 # -------------------------
 # Agency Views
 # -------------------------
+from django.utils import timezone
+
 @login_required
 def my_tours_view(request):
     agency = request.user.agency_profile
+    status = request.GET.get('status', 'upcoming')
+    today = timezone.now().date()
+
     tours = Tour.objects.filter(agency=agency)
 
-    tours_with_duration = []
-    for tour in tours:
-        duration_days = (tour.end_date - tour.start_date).days + 1
-        tours_with_duration.append({
-            'tour': tour,
-            'duration': duration_days
-        })
+    if status == 'upcoming':
+        tours = tours.filter(start_date__gt=today)
+    elif status == 'active':
+        tours = tours.filter(start_date__lte=today, end_date__gte=today)
+    elif status == 'past':
+        tours = tours.filter(end_date__lt=today)
 
     cities = tours.values_list('city', flat=True).distinct()
 
     return render(request, 'agency/my_tours.html', {
-        'tours': tours_with_duration,
+        'tours': tours,   # 👈 Tour objects مباشرة
         'cities': cities,
+        'status': status,
     })
+
+
+
+
 
 
 
@@ -51,29 +60,48 @@ def confirm_tour_view(request, tour_id):
 
 
 
+
 @login_required
 def dashboard_view(request):
-    agency = request.user.agency_profile
+    # 1. جلب بروفايل الوكالة وتاريخ اليوم
+    agency = getattr(request.user, 'agency_profile', None)
+    today = date.today()
 
-    # 1. جلب رحلات الشركة
-    tours = Tour.objects.filter(agency=agency)
+    # 2. جلب كافة رحلات هذه الوكالة
+    all_tours = Tour.objects.filter(agency=agency)
+    
+    # جلب كائنات المرشدين الفعليين التابعين لهذه الوكالة
+    tour_guides = TourGuide.objects.filter(agency=agency) 
+    tour_guides_count = tour_guides.count()
 
-    # 2. حساب عدد المرشدين (Tour Guides) التابعين لهذه الشركة فقط
+    # 3. تقسيم الرحلات حسب التاريخ
+    # الرحلات القادمة: التي لم تبدأ بعد
+    upcoming_tours_count = all_tours.filter(start_date__gt=today).count()
+    
+    # الرحلات النشطة: التي بدأت ولم تنتهِ بعد
+    active_tours_count = all_tours.filter(start_date__lte=today, end_date__gte=today).count()
+    
+    # الرحلات المنتهية: التي انتهى تاريخ نهايتها
+    past_tours_count = all_tours.filter(end_date__lt=today).count()
+
+    # 4. إحصائيات إضافية (المرشدين والمسافرين)
     tour_guides_count = TourGuide.objects.filter(agency=agency).count()
-
-    # 3. حساب عدد المسافرين (اليوزرز) الذين دفعوا وسجلوا فعلياً في رحلات الشركة
-    # سنبحث في جدول TravelerPayment عن العمليات التي حالتها 'paid' وتخص رحلات هذه الوكالة
     travelers_count = TravelerPayment.objects.filter(
         tour__agency=agency, 
         status=TravelerPayment.Status.PAID
     ).count()
 
+    # 5. تجهيز البيانات للإرسال
     context = {
-        'tours': tours,
-        'upcoming_tours_count': tours.filter(start_date__gte=datetime.today()).count(),
-        'active_tours_count': tours.filter(start_date__lte=datetime.today(), end_date__gte=datetime.today()).count(),
-        'travelers_count': travelers_count, # عدد اليوزرز الذين أتموا الدفع
-        'tour_guides_count': tour_guides_count, # عدد مرشدي الشركة
+        'agency': agency,
+        'tour_guides': tour_guides,
+        'upcoming_tours_count': upcoming_tours_count,
+        'active_tours_count': active_tours_count,
+        'past_tours_count': past_tours_count,
+        'tour_guides_count': tour_guides_count,
+        'travelers_count': travelers_count,
+        'tours': all_tours.order_by('-id')[:4], # عرض أحدث 4 رحلات في الجدول
+        'today': today,
     }
     return render(request, 'agency/agency_dashboard.html', context)
 
@@ -272,8 +300,35 @@ def add_tour_view(request):
         try:
             start_date = datetime.strptime(request.POST.get('start_date'), "%Y-%m-%d").date()
             end_date = datetime.strptime(request.POST.get('end_date'), "%Y-%m-%d").date()
-        except ValueError:
-            messages.error(request, "❌ تنسيق التواريخ غير صحيح")
+
+            if start_date > end_date:
+                messages.error(request, "❌ Error: Start date cannot be after end date.")
+                return render(request, 'agency/add_tour.html', {
+                    'name': name, 'description': description, 'country': country, 
+                    'city': city, 'travelers': travelers, 'price': price,
+                    'start_date': request.POST.get('start_date'), 'end_date': request.POST.get('end_date'),
+                    'tour_guides': tour_guides, 'current_step': 1
+                })
+
+            # ⭐⭐ إنشاء الرحلة (داخل الـ POST) ⭐⭐
+            tour = Tour.objects.create(
+                name=name,
+                description=description,
+                country=country,
+                city=city,
+                travelers=travelers,
+                price=price,
+                start_date=start_date,
+                end_date=end_date,
+                agency=agency,
+                image=request.FILES.get('image')  # ← هذا السطر الجديد
+
+            )
+            messages.success(request, "✅ Tour created successfully!")
+            return redirect('agency:add_schedule', tour_id=tour.id)
+
+        except (ValueError, TypeError):
+            messages.error(request, "❌ Error: Invalid date format.")
             return render(request, 'agency/add_tour.html', {
                 'name': name,
                 'description': description,
@@ -423,37 +478,76 @@ def tour_detail_view(request, tour_id):
     })
 @login_required
 def edit_tour_view(request, tour_id):
-    # جلب الرحلة والتأكد أنها تابعة لهذه الوكالة فقط
     tour = get_object_or_404(Tour, id=tour_id, agency=request.user.agency_profile)
-    
+    schedules = TourSchedule.objects.filter(tour=tour).order_by('day_number', 'start_time')
+    tour_guides = TourGuide.objects.filter(agency=request.user.agency_profile)
+
     if request.method == 'POST':
-        # تحديث البيانات من الفورم
+        # 1. تحديث بيانات الرحلة الأساسية
         tour.name = request.POST.get('name')
         tour.description = request.POST.get('description')
         tour.country = request.POST.get('country')
         tour.city = request.POST.get('city')
         tour.travelers = int(request.POST.get('travelers') or 0)
         tour.price = float(request.POST.get('price') or 0)
-        
-        # إذا تم رفع صورة جديدة
+
         if 'image' in request.FILES:
             tour.image = request.FILES['image']
-            
-        # تحديث التورقايد
+
         guide_id = request.POST.get('tour_guide')
         tour.tour_guide_id = guide_id if guide_id else None
-        
         tour.save()
-        messages.success(request, "✅ تم تحديث بيانات الرحلة بنجاح")
+
+        # 2. تحديث الأنشطة الموجودة
+        for schedule in schedules:
+            # التحقق إذا كان المستخدم ضغط على زر الحذف
+            if f"schedule_{schedule.id}_delete" in request.POST:
+                schedule.delete()
+                continue
+
+            # جلب البيانات مع وضع قيم افتراضية للحقول الإجبارية لتجنب IntegrityError
+            schedule.start_time = request.POST.get(f"schedule_{schedule.id}_start")
+            schedule.end_time = request.POST.get(f"schedule_{schedule.id}_end")
+            schedule.activity_title = request.POST.get(f"schedule_{schedule.id}_title")
+            
+            # حل مشكلة NOT NULL: إذا كان الحقل فارغاً نضع قيمة نصية
+            location = request.POST.get(f"schedule_{schedule.id}_location")
+            schedule.location_name = location if location else "TBA" # To Be Announced
+            
+            schedule.description = request.POST.get(f"schedule_{schedule.id}_desc")
+            
+            # حفظ التعديلات
+            schedule.save()
+
+        # 3. إضافة أنشطة جديدة (إن وجدت)
+        new_titles = request.POST.getlist("new_title[]")
+        new_days = request.POST.getlist("new_day[]")
+        new_locations = request.POST.getlist("new_location[]") # تأكدي من وجودها في JS
+
+        for i in range(len(new_titles)):
+            if not new_titles[i].strip():
+                continue
+                
+            TourSchedule.objects.create(
+                tour=tour,
+                day_number=new_days[i] if new_days[i] else 1,
+                start_time=request.POST.getlist("new_start[]")[i],
+                end_time=request.POST.getlist("new_end[]")[i],
+                activity_title=new_titles[i],
+                location_name=new_locations[i] if (len(new_locations) > i and new_locations[i]) else "TBA",
+                description=request.POST.getlist("new_desc[]")[i],
+            )
+
+        messages.success(request, "✅ Tour updated successfully!")
         return redirect('agency:my_tours')
 
-    # جلب التورقايدز المتاحين لعرضهم في فورم التعديل
-    tour_guides = TourGuide.objects.filter(agency=request.user.agency_profile)
-    
     return render(request, 'agency/edit_tour.html', {
         'tour': tour,
-        'tour_guides': tour_guides
+        'tour_guides': tour_guides,
+        'schedules': schedules,
     })
+
+
 @login_required
 def delete_tour_view(request, tour_id):
     # جلب الرحلة والتأكد أنها تابعة لوكالة المستخدم الحالي فقط لزيادة الأمان
@@ -535,34 +629,34 @@ def delete_schedule_view(request, schedule_id):
 
 @login_required
 def select_subscription_view(request, subscription_id):
-    """
-    اختيار باقة وتفعيلها فوراً (للتجربة المحلية) مع فتح صفحة ميسر
-    """
     subscription = get_object_or_404(Subscription, id=subscription_id)
     agency = request.user.agency_profile
 
     if request.method == "POST":
-        # 1. إنشاء سجل الدفع في قاعدة بياناتك
+        # 1. إنشاء سجل الدفع في قاعدة بياناتك أولاً
         payment = AgencyPayment.objects.create(
             agency=agency,
             subscription=subscription,
-            amount=int(subscription.price * 100),
+            amount=int(subscription.price * 100),  # تحويل من ريال إلى هللة
             currency="SAR",
             description=f"Subscription: {subscription.subscriptionType}",
         )
 
-        # 2. رابط العودة (مؤقتاً جوجل لأننا نختبر محلياً)
-        callback_url = "https://google.com"
-
+        # 2. تجهيز روابط العودة لموقعك
+        # هذا الرابط ميسر يرسل عليه نتيجة الدفع (الخلفية)
+        callback_url = request.build_absolute_uri(reverse('agency:subscription_callback'))
+        
+        # 3. تجهيز بيانات الطلب (Payload)
         payload = {
             "amount": payment.amount,
             "currency": payment.currency,
             "description": payment.description,
             "callback_url": callback_url,
+            "back_url": callback_url,  # 👈 هذا السطر هو المسؤول عن "التحويل التلقائي" بعد الدفع
         }
 
         try:
-            # 3. طلب إنشاء فاتورة من ميسر
+            # 4. إرسال الطلب لميسر لإنشاء الفاتورة
             r = requests.post(
                 f"{settings.MOYASAR_BASE_URL_AGENCY}/invoices",
                 auth=(settings.MOYASAR_SECRET_KEY_AGENCY, ""),
@@ -572,59 +666,44 @@ def select_subscription_view(request, subscription_id):
             r.raise_for_status()
             data = r.json()
 
-            # ========================================================
-            # ⚠️ خطة التجربة المحلية: تفعيل الباقة فوراً في قاعدة البيانات
-            # أضفنا هذا الجزء لكي ترى النتيجة في موقعك دون انتظار الـ Callback
-            # ========================================================
-            agency.current_subscription = subscription
-              # ربط الوكالة بالباقة
-            agency.save()                       # حفظ في قاعدة البيانات
-            
-            payment.status = "paid"             # تحديث حالة الدفع محلياً للتجربة
-            # ========================================================
-
-            # تحديث بيانات الدفع من رد ميسر
+            # 5. حفظ البيانات المستلمة من ميسر
             payment.moyasar_id = data.get("id")
             payment.transaction_url = data.get("url")
             payment.raw = data
             payment.save()
 
-            # 4. تحويل المستخدم لصفحة ميسر
+            # 6. تحويل المستخدم لصفحة الدفع الخاصة بميسر
             if payment.transaction_url:
                 return redirect(payment.transaction_url)
             else:
-                messages.error(request, "لم يتم استلام رابط الدفع من ميسر")
+                messages.error(request, "لم يتم استلام رابط الدفع من ميسر.")
                 return redirect("agency:subscription_view")
 
         except Exception as e:
             messages.error(request, f"خطأ في الاتصال بميسر: {str(e)}")
             return redirect("agency:subscription_view")
 
+    # في حال كان الطلب GET نعرض صفحة التأكيد
     return render(request, "agency/select_subscription.html", {
         "subscription": subscription,
         "agency": agency,
     })
 
+
+
+
+
+
 @login_required
 def subscription_callback_view(request):
-    # 1. جلب المعرف من الرابط
     moyasar_id = request.GET.get("id")
-    status = request.GET.get("status") # ميسر ترسل الحالة أيضاً في الرابط
     
     if not moyasar_id:
-        messages.error(request, "معرف الدفع مفقود.")
-        return redirect("agency:subscription_view")
+        return redirect("agency:dashboard")
 
-    # 2. جلب سجل الدفع من قاعدة البيانات
     payment = get_object_or_404(AgencyPayment, moyasar_id=moyasar_id)
 
-    # إذا كان الدفع قد تم معالجته سابقاً، لا تكرر العملية
-    if payment.status == AgencyPayment.Status.PAID:
-        return render(request, "agency/callback.html", {"payment": payment})
-
     try:
-        # 3. التحقق المباشر من سيرفر ميسر (Server-to-Server Verification)
-        # لضمان أن الحالة في الرابط حقيقية ولم يتم التلاعب بها
         r = requests.get(
             f"{settings.MOYASAR_BASE_URL_AGENCY}/payments/{moyasar_id}",
             auth=(settings.MOYASAR_SECRET_KEY_AGENCY, ""),
@@ -632,32 +711,26 @@ def subscription_callback_view(request):
         )
         r.raise_for_status()
         data = r.json()
+        status = data.get("status")
 
-        # 4. تحديث سجل الدفع بالبيانات النهائية من ميسر
-        payment.status = data.get("status") # قد يكون 'paid', 'failed', 'authorized'
-        payment.raw = data
-        payment.save()
-
-        # 5. إذا كان الدفع ناجحاً (paid)، نفذ منطق تفعيل الاشتراك
-        if payment.status == 'paid':
+        if status == 'paid':
+            # تحديث قاعدة البيانات وتفعيل الاشتراك
+            payment.status = AgencyPayment.Status.PAID
+            payment.save()
+            
             agency = payment.agency
-            # تحديث باقة الوكالة
             agency.current_subscription = payment.subscription
             agency.save()
-            
-            #  هنا أيضاً إضافة تاريخ انتهاء الاشتراك (مثلاً بعد 30 يوم)
-            # agency.subscription_expiry = timezone.now() + timedelta(days=30)
-            # agency.save()
 
-            messages.success(request, f"مبروك! تم تفعيل اشتراك {payment.subscription.subscriptionType} بنجاح.")
+            # 👈 بدلاً من الـ redirect، سنعرض صفحة نجاح
+            return render(request, "agency/payment_success.html", {
+                "payment": payment,
+                "subscription": payment.subscription
+            })
         else:
-            # إذا فشل الدفع أو تم إلغاؤه
-            error_msg = data.get('source', {}).get('message', 'فشلت عملية الدفع.')
-            messages.error(request, f"فشل الدفع: {error_msg}")
+            messages.error(request, "عذراً، لم تكتمل عملية الدفع.")
+            return redirect("agency:subscription_view")
 
     except Exception as e:
-        messages.error(request, f"خطأ تقني أثناء التحقق: {str(e)}")
-        payment.status = AgencyPayment.Status.FAILED
-        payment.save()
-
-    return render(request, "agency/callback.html", {"payment": payment})
+        messages.error(request, "حدث خطأ أثناء معالجة الطلب.")
+        return redirect("agency:subscription_view")

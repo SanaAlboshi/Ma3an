@@ -3,86 +3,147 @@
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+
+<style>
+    /* تحسين شبكة العرض لتكون متجاوبة */
+    .tour-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        padding: 20px 0;
+    }
+
+    .outer-box {
+        background: #ffffff;
+        border-radius: 25px;
+        padding: 8px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        margin: auto;
+        width: 100%;
+        max-width: 350px; /* ضمان عدم كبر الصندوق بشكل مبالغ فيه */
+    }
+
+    .outer-box:hover { transform: translateY(-8px); }
+
+    .inner-image-box {
+        position: relative;
+        width: 100%;
+        height: 450px; /* ارتفاع البطاقة */
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .tour-img-full {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block;
+    }
+
+    .inner-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%);
+        z-index: 2;
+    }
+
+    .badge-price {
+        position: absolute;
+        top: 15px; left: 15px;
+        background: white;
+        color: #000;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        z-index: 3;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .badge-duration {
+        position: absolute;
+        top: 15px; right: 15px;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        z-index: 3;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .inner-content {
+        position: absolute;
+        bottom: 0; left: 0; width: 100%;
+        padding: 20px;
+        z-index: 4;
+        color: white;
+    }
+
+    .t-name { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+
+    .btn-main-white {
+        background: #ffffff !important;
+        color: #000 !important;
+        border: none !important;
+        border-radius: 15px !important;
+        padding: 12px !important;
+        width: 100%;
+        font-weight: 700;
+        text-decoration: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+    .btn-main-white:hover { background: #f0f0f0 !important; transform: scale(1.02); }
+
+    .admin-tools {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .btn-admin-tool {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.2) !important;
+        backdrop-filter: blur(5px);
+        color: #fff !important;
+        border-radius: 10px !important;
+        padding: 8px !important;
+        font-size: 0.75rem !important;
+        text-align: center;
+        text-decoration: none !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+    }
+</style>
 
 <div class="container py-5">
-    {% if messages %}
-        <div class="messages mb-4">
-            {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <div class="page-title-section text-center mb-5">
-        <h1 class="display-4 fw-bold" style="color: #1a202c;">Explore Our Tours</h1>
-        <p class="text-muted">Discover amazing destinations and create unforgettable memories</p>
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-bold">Explorations</h2>
+        {% if user.is_authenticated %}
+        <a href="{% url 'agency:add_tour' %}" class="btn btn-dark rounded-pill px-4 shadow-sm">+ Add New</a>
+        {% endif %}
     </div>
 
-    <!-- Filter Section -->
-    <div class="filter-section">
-        <form method="get" class="filter-controls">
-            <div class="filter-item">
-                <label>Search</label>
-                <input type="text" name="search" placeholder="Search tours..." value="{{ request.GET.search }}">
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label fw-bold small text-secondary">Destination</label>
-                <select name="destination" class="form-select border-0 bg-light rounded-3" onchange="this.form.submit()">
-                    <option value="">All Destinations</option>
-                    {% for city in cities %}
-                        <option value="{{ city }}" {% if selected_destination == city %}selected{% endif %}>{{ city }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label fw-bold small text-secondary">Duration</label>
-                <select name="duration" class="form-select border-0 bg-light rounded-3" onchange="this.form.submit()">
-                    <option value="">All Durations</option>
-                    <option value="1-3" {% if selected_duration == '1-3' %}selected{% endif %}>1-3 Days</option>
-                    <option value="4-7" {% if selected_duration == '4-7' %}selected{% endif %}>4-7 Days</option>
-                    <option value="7+" {% if selected_duration == '7+' %}selected{% endif %}>7+ Days</option>
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100 rounded-3">Apply Filters</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Tours Grid -->
-    <div class="tours-grid">
+    <div class="tour-grid">
         {% for item in tours %}
-        <div class="tour-card">
-            <div class="tour-image">
+        <div class="outer-box">
+            <div class="inner-image-box">
                 {% if item.tour.image %}
-                    <img src="{{ item.tour.image.url }}" alt="{{ item.tour.name }}">
+                    <img src="{{ item.tour.image.url }}" class="tour-img-full" alt="{{ item.tour.name }}">
                 {% else %}
-                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" alt="{{ item.tour.name }}">
+                    <img src="https://via.placeholder.com/400x600" class="tour-img-full" alt="No image">
                 {% endif %}
-            </div>
-            <div class="tour-content">
-                <h3 class="tour-title">{{ item.tour.name }}</h3>
-                <div class="tour-meta">
-                    <div class="tour-meta-item"><i class="fas fa-map-marker-alt"></i><span>{{ item.tour.city }}, {{ item.tour.country }}</span></div>
-                    <div class="tour-meta-item"><i class="far fa-clock"></i><span>{{ item.duration }} day{% if item.duration > 1 %}s{% endif %}</span></div>
+
+                <div class="inner-overlay"></div>
+
+                <div class="badge-price">
+                    {{ item.tour.price }} SAR
                 </div>
-                <div class="price-section">
-                    <div class="tour-price">{{ item.tour.price }} SAR<span class="person-price">/ person</span></div>
-                </div>
-                <div class="action-buttons">
-                    <a href="{% url 'agency:tour_detail' item.tour.id %}" class="btn-book">Details</a>
-                    <a href="{% url 'agency:edit_tour' item.tour.id %}" class="btn-secondary-action">Edit</a>
-                    <a href="{% url 'agency:delete_tour' item.tour.id %}" class="btn-secondary-action">Delete</a>
-                </div>
-            </div>
-        </div>
 
         <div class="tours-grid">
             {% for tour in page_obj %}
@@ -138,19 +199,12 @@
                         {% endif %}
 
                     {% endif %}
-                    </div>
                 </div>
-            </div>
-            {% empty %}
-            <div class="no-tours">
-                <i class="fas fa-map-marked-alt fa-5x text-muted mb-3"></i>
-                <h4>No tours available yet</h4>
-                <p class="text-muted">Try changing your filters or check back later.</p>
-                {% if user.role == 'agency' %}
-                    <a href="{% url 'agency:add_tour' %}" class="btn btn-primary rounded-pill px-4 mt-2">+ Create Your First Tour</a>
-                {% endif %}
-            </div>
-            {% endfor %}
+            </div> 
+        </div>
+        {% empty %}
+        <div class="text-center w-100 py-5">
+            <p class="text-muted">No tours available.</p>
         </div>
         <div class="pagination-wrapper">
             {% if page_obj.has_previous %}
@@ -173,6 +227,4 @@
             {% endif %}
           </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
